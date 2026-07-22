@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Kalkulator ANSI/AQL - PT Dankos Farma</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e9f0f5 0%, #dce5ec 100%);
+            padding: 24px 16px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header di tengah */
+        .app-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .app-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a4b6e;
+            background: white;
+            padding: 12px 28px;
+            border-radius: 60px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+            display: inline-block;
+        }
+        .app-header p {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #2c5a7a;
+            font-weight: 500;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 28px;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: white;
+            border: none;
+            padding: 12px 26px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            color: #1f5e87;
+        }
+        .tab-btn.active {
+            background: #2c7da0;
+            color: white;
+            box-shadow: 0 6px 12px rgba(44,125,160,0.25);
+        }
+
+        /* Tab content */
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 32px;
+            padding: 28px 24px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.12);
+            transition: all 0.2s;
+            border-top: 5px solid #2c7da0;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(6px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* Form styling */
+        .form-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .form-group label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+            color: #1f4e6e;
+            font-size: 0.9rem;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #cfdfe8;
+            border-radius: 28px;
+            font-size: 1rem;
+            background: #fefefe;
+            transition: 0.2s;
+        }
+        input:focus, select:focus {
+            border-color: #2c7da0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
+        }
+        button {
+            background: #2c7da0;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        button:hover {
+            background: #216183;
+            transform: scale(0.97);
+        }
+
+        /* Card / result box */
+        .info-card {
+            background: #f0f8fc;
+            border-radius: 28px;
+            padding: 20px 24px;
+            margin: 20px 0 16px 0;
+            border-left: 6px solid #2c7da0;
+        }
+        .defect-card {
+            background: #ffffff;
+            border-radius: 28px;
+            border: 1px solid #e2edf2;
+            padding: 20px 24px;
+            margin-top: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+        .defect-input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+            margin: 20px 0 20px;
+        }
+        .defect-item {
+            flex: 1;
+            min-width: 100px;
+        }
+        .defect-item label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .defect-item input {
+            width: 100%;
+        }
+        .decision-area {
+            margin-top: 20px;
+            background: #fafbfd;
+            border-radius: 24px;
+            padding: 18px;
+        }
+
+        /* Tabel responsive */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        th {
+            background: #2c7da0;
+            color: white;
+            padding: 12px 8px;
+            font-weight: 600;
+        }
+        td {
+            border: 1px solid #cbdde6;
+            padding: 10px 6px;
+            text-align: center;
+        }
+        .step {
+            background: #fef3e2;
+            padding: 18px;
+            border-radius: 24px;
+            margin: 20px 0;
+            border-left: 5px solid #2c7da0;
+        }
+        .cacat-list {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .cacat-card {
+            flex: 1;
+            background: #f9fafc;
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .critical { border-top: 5px solid #d9534f; }
+        .major { border-top: 5px solid #f0ad4e; }
+        .minor { border-top: 5px solid #5bc0de; }
+        .decision-accept { color: #2a7a3e; font-weight: 700; }
+        .decision-reject { color: #c9353e; font-weight: 700; }
+        .note {
+            font-size: 0.8rem;
+            background: #f0f5f9;
+            padding: 12px;
+            border-radius: 24px;
+            margin-top: 18px;
+            color: #2a5f7a;
+        }
+        hr {
+            margin: 16px 0;
+        }
+        @media (max-width: 640px) {
+            .tab-btn { padding: 8px 18px; font-size: 0.85rem; }
+            .form-grid { flex-direction: column; gap: 12px; }
+            .defect-input-group { flex-direction: column; align-items: stretch; }
+            .app-header h1 { font-size: 1.3rem; padding: 8px 18px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header di tengah tanpa logo -->
+    <div class="app-header">
+        <h1>📊 Kalkulator ANSI / AQL</h1>
+        <p>PT Dankos Farma - QA Line Injeksi</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="tab1">🔬 1. Sampling Plan</button>
+        <button class="tab-btn" data-tab="tab2">📋 2. Input Cacat</button>
+        <button class="tab-btn" data-tab="tab3">📚 Tabel Referensi ANSI</button>
+        <button class="tab-btn" data-tab="tab4">⚠️ Panduan Cacat & Alur</button>
+    </div>
+
+    <!-- SLIDE 1: KALKULATOR SAMPLING -->
+    <div id="tab1" class="tab-content active">
+        <h3 style="margin-bottom: 20px;">📦 Data Produk & Sampling Plan</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Nama Produk</label>
+                <input type="text" id="productName" placeholder="Contoh: Vial Cefotaxime 1g">
+            </div>
+            <div class="form-group">
+                <label>No. Batch</label>
+                <input type="text" id="batchNo" placeholder="Contoh: BATCH2401A">
+            </div>
+            <div class="form-group">
+                <label>Ukuran Lot (jumlah unit)</label>
+                <input type="number" id="lotSize" placeholder="Misal: 5000">
+            </div>
+            <div class="form-group">
+                <label>Jenis Inspeksi</label>
+                <select id="inspectionLevel">
+                    <option value="normal">Inspeksi Normal</option>
+                    <option value="tightened">Inspeksi Diperketat (Tightened)</option>
+                    <option value="reduced">Inspeksi Diperlonggar (Reduced)</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="hitungPlanOnly()">📐 Hitung Sampling Plan</button>
+
+        <div id="planResultArea" class="info-card" style="display:none;"></div>
+        <div class="note">
+            💡 <strong>Petunjuk:</strong> Isi data produk di atas, klik tombol untuk mendapatkan kode huruf, jumlah sampel (n), dan batas Ac/Re. <br>
+            Kemudian lanjut ke tab <strong>"2. Input Cacat"</strong> untuk memasukkan hasil temuan cacat aktual.
+        </div>
+    </div>
+
+    <!-- SLIDE 2: INPUT CACAT AKTUAL + KEPUTUSAN -->
+    <div id="tab2" class="tab-content">
+        <h3>🔎 Input Jumlah Cacat Aktual</h3>
+        <div id="activeSamplingInfo" class="info-card" style="background:#eef2f7;">
+            <p style="color:#1f5e87;">⚠️ Silakan hitung Sampling Plan terlebih dahulu di tab 1.</p>
+        </div>
+        <div class="defect-card">
+            <label style="font-weight:800;">📌 Masukkan cacat dari <span id="sampleSizeLabel">—</span> sampel :</label>
+            <div class="defect-input-group">
+                <div class="defect-item">
+                    <label style="color:#d9534f;">🔴 Cacat Kritis</label>
+                    <input type="number" id="defectCritical" value="0" min="0">
+                </div>
+                <div class="defect-item">
+                    <label style="color:#f0ad4e;">🟠 Cacat Mayor</label>
+                    <input type="number" id="defectMajor" value="0" min="0">
+                </div>
+                <div class="defect-item">
+                    <label style="color:#5bc0de;">🟢 Cacat Minor</label>
+                    <input type="number" id="defectMinor" value="0" min="0">
+                </div>
+                <div>
+                    <button onclick="evaluasiKeputusanFromGlobal()">✅ Evaluasi & Putuskan</button>
+                </div>
+            </div>
+            <div id="decisionFinalArea" class="decision-area" style="display:none;"></div>
+        </div>
+        <div class="note">
+            * Cacat Kritis (AQL 0%) → jika ≥1 maka langsung TOLAK.<br>
+            * Bandingkan cacat Mayor/Minor dengan batas Ac/Re dari sampling plan.
+        </div>
+    </div>
+
+    <!-- SLIDE 3: TABEL REFERENSI -->
+    <div id="tab3" class="tab-content">
+        <h3>📊 Tabel 1: Ukuran Lot → Kode Huruf (General Level II)</h3>
+        <div class="table-wrapper">
+            <table id="tableLotCode">
+                <thead><tr><th>Lot Size Range</th><th>Kode Huruf</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <h3>📊 Tabel 2: Kode → n Sampel & Ac/Re (Normal Inspection)</h3>
+        <div class="table-wrapper">
+            <table id="tableSamplingPlan">
+                <thead><tr><th>Kode</th><th>n (Sampel)</th><th>Critical (0%)</th><th>Major (2.5%)</th><th>Minor (4%)</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="note">* Tightened: Ac dikurangi 1 (min 0). Reduced: Ac ditambah 1.</div>
+    </div>
+
+    <!-- SLIDE 4: PANDUAN CACAT & ALUR -->
+    <div id="tab4" class="tab-content">
+        <h3>Klasifikasi Cacat Produk Injeksi Steril (Vial, Ampul, Infus)</h3>
+        <div class="cacat-list">
+            <div class="cacat-card critical">
+                <h4>🔴 Kritis (AQL 0%)</h4>
+                <ul>
+                    <li>Partikel asing (logam, kaca)</li>
+                    <li>Kebocoran vial/ampul</li>
+                    <li>Kontaminasi mikroba</li>
+                    <li>Label salah produk / kekuatan sediaan</li>
+                    <li>Kerusakan segel sterilitas</li>
+                    <li>Warna sediaan tidak sesuai</li>
+                </ul>
+            </div>
+            <div class="cacat-card major">
+                <h4>🟠 Mayor (AQL 2.5%)</h4>
+                <ul>
+                    <li>Kerusakan fisik ringan tapi fungsi terganggu</li>
+                    <li>Printing blur / batch number tidak jelas</li>
+                    <li>Kesalahan minor pada leaflet</li>
+                    <li>Vial retak (tanpa bocor)</li>
+                    <li>Segel aluminium longgar tapi tidak lepas</li>
+                </ul>
+            </div>
+            <div class="cacat-card minor">
+                <h4>🟢 Minor (AQL 4%)</h4>
+                <ul>
+                    <li>Goresan luar tidak mempengaruhi sterilitas</li>
+                    <li>Kemasan luar (kardus) penyok</li>
+                    <li>Perbedaan warna segel yang tidak kritis</li>
+                    <li>Bekas lem berlebih pada label</li>
+                    <li>Tulisan pada etiket sedikit buram namun masih terbaca</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>📌 Alur Keputusan Sampling</h3>
+        <div class="step">
+            <strong>Langkah 1:</strong> Tentukan ukuran lot → cari Kode Huruf dari Tabel 1.<br>
+            <strong>Langkah 2:</strong> Dari Kode Huruf & jenis inspeksi → tentukan jumlah sampel (n) dan batas Ac/Re.<br>
+            <strong>Langkah 3:</strong> Ambil sampel sebanyak n unit secara acak.<br>
+            <strong>Langkah 4:</strong> Hitung jumlah cacat per kategori (Kritis, Mayor, Minor).<br>
+            <strong>Langkah 5:</strong> Bandingkan dengan batas Ac/Re:<br>
+            &nbsp;&nbsp;- Jika cacat Kritis ≥ 1 → <strong class="decision-reject">TOLAK (Reject)</strong><br>
+            &nbsp;&nbsp;- Jika cacat Mayor > Ac Mayor → <strong class="decision-reject">TOLAK (Reject)</strong><br>
+            &nbsp;&nbsp;- Jika cacat Minor > Ac Minor → <strong class="decision-reject">TOLAK (Reject)</strong><br>
+            &nbsp;&nbsp;- Selain itu → <strong class="decision-accept">TERIMA (Accept)</strong>
+        </div>
+
+        <h3>🔄 Aturan Peralihan Inspeksi</h3>
+        <div class="step">
+            <strong>Normal → Diperketat (Tightened):</strong><br>
+            &nbsp;&nbsp;Jika 2 dari 5 lot berturut-turut ditolak (Reject).<br><br>
+            <strong>Diperketat → Normal:</strong><br>
+            &nbsp;&nbsp;Jika 5 lot berturut-turut diterima (Accept) pada inspeksi diperketat.<br><br>
+            <strong>Normal → Diperlonggar (Reduced):</strong><br>
+            &nbsp;&nbsp;Jika 10 lot berturut-turut diterima (Accept) pada inspeksi normal.<br><br>
+            <strong>Diperlonggar → Normal:</strong><br>
+            &nbsp;&nbsp;Jika 1 lot ditolak (Reject) pada inspeksi diperlonggar.
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================= DATA PLAN (NORMAL) =======================
+    // Minor 4% : F(2/3), G(3/4), H(5/6), J(7/8), K(10/11), L(14/15), M,N,P,Q,R (21/22)
+    // Major 2.5%: F(1/2), G(2/3), H(3/4), J(5/6), K(7/8), L(10/11), M(14/15), N,P,Q,R (21/22)
+    const normalPlan = {
+        'A': { n: 2,  major_ac: 0, major_re: 1, minor_ac: 0, minor_re: 1 },
+        'B': { n: 3,  major_ac: 0, major_re: 1, minor_ac: 0, minor_re: 1 },
+        'C': { n: 5,  major_ac: 0, major_re: 1, minor_ac: 0, minor_re: 1 },
+        'D': { n: 8,  major_ac: 0, major_re: 1, minor_ac: 0, minor_re: 1 },
+        'E': { n: 13, major_ac: 0, major_re: 1, minor_ac: 1, minor_re: 2 },
+        'F': { n: 20, major_ac: 1, major_re: 2, minor_ac: 2, minor_re: 3 },
+        'G': { n: 32, major_ac: 2, major_re: 3, minor_ac: 3, minor_re: 4 },
+        'H': { n: 50, major_ac: 3, major_re: 4, minor_ac: 5, minor_re: 6 },
+        'J': { n: 80, major_ac: 5, major_re: 6, minor_ac: 7, minor_re: 8 },
+        'K': { n: 125, major_ac: 7, major_re: 8, minor_ac: 10, minor_re: 11 },
+        'L': { n: 200, major_ac: 10, major_re: 11, minor_ac: 14, minor_re: 15 },
+        'M': { n: 315, major_ac: 14, major_re: 15, minor_ac: 21, minor_re: 22 },
+        'N': { n: 500, major_ac: 21, major_re: 22, minor_ac: 21, minor_re: 22 },
+        'P': { n: 800, major_ac: 21, major_re: 22, minor_ac: 21, minor_re: 22 },
+        'Q': { n: 1250, major_ac: 21, major_re: 22, minor_ac: 21, minor_re: 22 },
+        'R': { n: 2000, major_ac: 21, major_re: 22, minor_ac: 21, minor_re: 22 }
+    };
+
+    function getTightenedPlan(code) {
+        let norm = normalPlan[code];
+        if (!norm) return null;
+        return {
+            n: norm.n,
+            major_ac: Math.max(0, norm.major_ac - 1),
+            major_re: Math.max(1, norm.major_ac),
+            minor_ac: Math.max(0, norm.minor_ac - 1),
+            minor_re: Math.max(1, norm.minor_ac)
+        };
+    }
+    function getReducedPlan(code) {
+        let norm = normalPlan[code];
+        if (!norm) return null;
+        return {
+            n: norm.n,
+            major_ac: norm.major_ac + 1,
+            major_re: norm.major_ac + 2,
+            minor_ac: norm.minor_ac + 1,
+            minor_re: norm.minor_ac + 2
+        };
+    }
+
+    const lotToCode = [
+        { max: 8, code: 'A' }, { max: 15, code: 'B' }, { max: 25, code: 'C' },
+        { max: 50, code: 'D' }, { max: 90, code: 'E' }, { max: 150, code: 'F' },
+        { max: 280, code: 'G' }, { max: 500, code: 'H' }, { max: 1200, code: 'J' },
+        { max: 3200, code: 'K' }, { max: 10000, code: 'L' }, { max: 35000, code: 'M' },
+        { max: 150000, code: 'N' }, { max: 500000, code: 'P' }, { max: 9999999, code: 'Q' }
+    ];
+
+    function getCodeFromLot(lot) {
+        for (let item of lotToCode) if (lot <= item.max) return item.code;
+        return 'Q';
+    }
+
+    // variable global untuk menyimpan plan terakhir
+    let lastSampling = {
+        product: '-', batch: '-', lotSize: 0, code: '', inspectionLabel: '',
+        n: 0, criticalAc: 0, criticalRe: 1, majorAc: 0, majorRe: 0, minorAc: 0, minorRe: 0
+    };
+
+    // Fungsi di SLIDE 1: hanya hitung plan dan simpan ke global
+    function hitungPlanOnly() {
+        let product = document.getElementById('productName').value.trim() || "-";
+        let batch = document.getElementById('batchNo').value.trim() || "-";
+        let lotSize = parseInt(document.getElementById('lotSize').value);
+        let inspeksi = document.getElementById('inspectionLevel').value;
+        if (isNaN(lotSize) || lotSize < 1) {
+            alert("Masukkan ukuran lot yang valid (angka > 0)");
+            return;
+        }
+        let code = getCodeFromLot(lotSize);
+        let plan, inspectionTypeLabel = "";
+        if (inspeksi === 'normal') { plan = normalPlan[code]; inspectionTypeLabel = "Normal"; }
+        else if (inspeksi === 'tightened') { plan = getTightenedPlan(code); inspectionTypeLabel = "Diperketat (Tightened)"; }
+        else { plan = getReducedPlan(code); inspectionTypeLabel = "Diperlonggar (Reduced)"; }
+        if (!plan) { alert("Plan tidak ditemukan untuk kode " + code); return; }
+
+        let n = plan.n;
+        let majorAc = plan.major_ac, majorRe = plan.major_re;
+        let minorAc = plan.minor_ac, minorRe = plan.minor_re;
+
+        // simpan ke global
+        lastSampling = {
+            product, batch, lotSize, code, inspectionLabel: inspectionTypeLabel,
+            n, criticalAc: 0, criticalRe: 1, majorAc, majorRe, minorAc, minorRe
+        };
+
+        // tampilkan hasil di slide 1
+        let html = `<strong>✅ Hasil Sampling Plan</strong><br>
+                    📦 Produk: ${product} | Batch: ${batch}<br>
+                    📊 Lot: ${lotSize.toLocaleString()} unit → Kode: <strong>${code}</strong><br>
+                    🔍 Inspeksi: ${inspectionTypeLabel}<br>
+                    🧪 Jumlah sampel wajib (n): <strong>${n} unit</strong><br>
+                    🎯 Batas Ac/Re:<br>
+                    🔴 Critical: Ac=0 / Re=1 &nbsp;&nbsp;🟠 Major: Ac=${majorAc} / Re=${majorRe} &nbsp;&nbsp;🟢 Minor: Ac=${minorAc} / Re=${minorRe}`;
+        document.getElementById('planResultArea').innerHTML = html;
+        document.getElementById('planResultArea').style.display = 'block';
+
+        // update info di slide 2
+        updateSlide2Info();
+    }
+
+    function updateSlide2Info() {
+        let infoDiv = document.getElementById('activeSamplingInfo');
+        let sampleSpan = document.getElementById('sampleSizeLabel');
+        if (lastSampling.n > 0) {
+            infoDiv.innerHTML = `<p>📌 <strong>Sampling Aktif:</strong> ${lastSampling.product} | Batch ${lastSampling.batch} | Lot ${lastSampling.lotSize.toLocaleString()} <br>
+            Kode ${lastSampling.code} (${lastSampling.inspectionLabel}) → n = ${lastSampling.n} unit<br>
+            🎯 Batas: Major Ac=${lastSampling.majorAc} / Re=${lastSampling.majorRe} &nbsp;|&nbsp; Minor Ac=${lastSampling.minorAc} / Re=${lastSampling.minorRe}</p>`;
+            sampleSpan.innerText = lastSampling.n;
+        } else {
+            infoDiv.innerHTML = `<p style="color:#1f5e87;">⚠️ Belum ada sampling plan. Silakan hitung terlebih dahulu di tab "1. Sampling Plan".</p>`;
+            sampleSpan.innerText = "—";
+        }
+    }
+
+    function evaluasiKeputusanFromGlobal() {
+        if (lastSampling.n === 0) {
+            alert("Anda belum menghitung Sampling Plan di tab pertama! Silakan hitung terlebih dahulu.");
+            return;
+        }
+        let crit = parseInt(document.getElementById('defectCritical').value) || 0;
+        let maj = parseInt(document.getElementById('defectMajor').value) || 0;
+        let min = parseInt(document.getElementById('defectMinor').value) || 0;
+
+        let majorAc = lastSampling.majorAc;
+        let minorAc = lastSampling.minorAc;
+        let decision = "", reason = "";
+
+        if (crit >= 1) {
+            decision = "TOLAK (Reject)";
+            reason = `Ditemukan ${crit} cacat kritis → melebihi batas Ac = 0 (wajib 0).`;
+        } else if (maj > majorAc) {
+            decision = "TOLAK (Reject)";
+            reason = `Cacat Mayor = ${maj} > batas Ac = ${majorAc}.`;
+        } else if (min > minorAc) {
+            decision = "TOLAK (Reject)";
+            reason = `Cacat Minor = ${min} > batas Ac = ${minorAc}.`;
+        } else {
+            decision = "TERIMA (Accept)";
+            reason = `Semua cacat dalam batas (Critical: ${crit}=0, Mayor: ${maj} ≤ ${majorAc}, Minor: ${min} ≤ ${minorAc}).`;
+        }
+
+        let colorClass = (decision === "TERIMA (Accept)") ? "decision-accept" : "decision-reject";
+        let finalHtml = `<h3 class="${colorClass}">⚖️ Keputusan Akhir: ${decision}</h3>
+                        <p><strong>Alasan:</strong> ${reason}</p>
+                        <p>🔍 <strong>Ringkasan:</strong><br>
+                        - Ukuran lot: ${lastSampling.lotSize.toLocaleString()} → Kode ${lastSampling.code}<br>
+                        - Sampel diambil: ${lastSampling.n} unit<br>
+                        - Cacat ditemukan: Kritis=${crit}, Mayor=${maj}, Minor=${min}<br>
+                        - Batas Ac/Re : Major (${majorAc}/${lastSampling.majorRe}) , Minor (${minorAc}/${lastSampling.minorRe})<br>
+                        - ${reason}<br>
+                        <strong>Kesimpulan → ${decision}</strong></p>`;
+        let decisionDiv = document.getElementById('decisionFinalArea');
+        decisionDiv.innerHTML = finalHtml;
+        decisionDiv.style.display = 'block';
+    }
+
+    // Build Tabel Referensi
+    function buildTables() {
+        let tbody1 = document.querySelector('#tableLotCode tbody');
+        tbody1.innerHTML = '';
+        let prevMax = 1;
+        for (let item of lotToCode) {
+            let start = prevMax + 1;
+            let rangeText = (start === 2) ? `2 to ${item.max}` : `${start} to ${item.max}`;
+            tbody1.innerHTML += `<tr><td>${rangeText}</td><td><b>${item.code}</b></td></tr>`;
+            prevMax = item.max;
+        }
+        let tbody2 = document.querySelector('#tableSamplingPlan tbody');
+        tbody2.innerHTML = '';
+        let kodeUrutan = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R'];
+        for (let code of kodeUrutan) {
+            let p = normalPlan[code];
+            if (p) {
+                tbody2.innerHTML += `<tr>
+                    <td><b>${code}</b></td>
+                    <td>${p.n}</td>
+                    <td>0 / 1</td>
+                    <td>${p.major_ac} / ${p.major_re}</td>
+                    <td>${p.minor_ac} / ${p.minor_re}</td>
+                </tr>`;
+            }
+        }
+    }
+
+    // Tab switching
+    function initTabs() {
+        const btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                btn.classList.add('active');
+                if (tabId === 'tab2') updateSlide2Info();
+            });
+        });
+    }
+
+    buildTables();
+    initTabs();
+    updateSlide2Info();
+</script>
+</body>
+</html>

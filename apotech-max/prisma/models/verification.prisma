@@ -1,0 +1,75 @@
+// Lampiran Verifikasi Produk Bermasalah
+// Captures a QC inspection sheet: header fields + per-container findings.
+
+enum UnitType {
+  TABLET
+  KAPLET
+  KAPSUL
+  SOFT_KAPSUL
+  VIAL
+  AMPUL
+  BLISTER
+  STRIP
+  BOTOL
+  KAFT
+}
+
+// Z1.4 General Inspection Level (NOT to be confused with normal/tightened/reduced
+// strictness — that one stays per existing AnsiService logic).
+enum InspectionGeneralLevel {
+  I
+  II
+  III
+}
+
+enum ContainerType {
+  WADAH    // generic container
+  KANTONG  // bag
+  BAK      // tub / bin
+  MB       // "MB" (machine box / master batch — short form retained from SOP)
+}
+
+model ProblemVerification {
+  id            String                  @id @default(cuid())
+  date          DateTime                @db.Date
+  productCode   String
+  batchNumber   String
+  location      String
+  aqlCriteria   String                  // free-form, e.g. "2.5%" or "AQL 2.5"
+  unitType      UnitType
+  generalLevel  InspectionGeneralLevel
+  sampleSize    Int
+  /// "Keterangan" — free-form remarks filled AFTER the findings are entered.
+  keterangan    String?                 @db.Text
+  /// "Kesimpulan" — final conclusion (e.g. ACCEPT / REJECT / further action).
+  kesimpulan    String?                 @db.Text
+
+  createdById   String?
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  createdBy User?              @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  findings  ProblemFinding[]
+
+  @@index([batchNumber])
+  @@index([date])
+  @@map("problem_verifications")
+}
+
+model ProblemFinding {
+  id              String        @id @default(cuid())
+  verificationId  String
+  // Display order within the parent (1-based). Lets us return rows in the
+  // exact order the user added them without leaking timestamps.
+  position        Int
+  label           String        // e.g. "Wadah 1", "Kantong A"
+  containerType   ContainerType
+  findingCount    Int           // jumlah temuan pada wadah ini
+  description     String?       @db.Text
+  createdAt       DateTime      @default(now())
+
+  verification ProblemVerification @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+
+  @@unique([verificationId, position])
+  @@map("problem_findings")
+}

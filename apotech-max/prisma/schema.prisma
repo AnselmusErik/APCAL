@@ -1,0 +1,10 @@
+// This is the root Prisma schema file.
+// Use prisma/models/ for domain-specific models.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}

@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   APCAL Design Tokens — Dankos brand
+   ----------------------------------------------------------------------------
+   Brand colors (Dankos):
+     • Blue   RGB(62, 100, 167)  → oklch(48% 0.13 263)
+     • Yellow RGB(253, 241, 83)  → oklch(94% 0.18 102)
+
+   Note: brand yellow is reserved for accent/CTA. Warning state uses a
+   separate orange tone so the two never read as the same signal.
+
+   Dark mode tokens are scaffolded under [data-theme="dark"] but the app
+   currently ships light-only.
+   ========================================================================== */
+
+@theme inline {
+  /* ── Brand: Dankos blue (primary) ── */
+  --color-brand-blue-50:  oklch(97% 0.015 263);
+  --color-brand-blue-100: oklch(93% 0.030 263);
+  --color-brand-blue-200: oklch(86% 0.060 263);
+  --color-brand-blue-300: oklch(75% 0.090 263);
+  --color-brand-blue-400: oklch(62% 0.120 263);
+  --color-brand-blue-500: oklch(48% 0.130 263);   /* Dankos #3E64A7 */
+  --color-brand-blue-600: oklch(42% 0.135 263);
+  --color-brand-blue-700: oklch(36% 0.120 263);
+  --color-brand-blue-800: oklch(28% 0.090 263);
+  --color-brand-blue-900: oklch(20% 0.060 263);
+
+  /* ── Brand: Dankos yellow (accent) ── */
+  --color-brand-yellow-50:  oklch(99% 0.020 102);
+  --color-brand-yellow-100: oklch(98% 0.060 102);
+  --color-brand-yellow-200: oklch(96% 0.110 102);
+  --color-brand-yellow-300: oklch(95% 0.150 102);
+  --color-brand-yellow-400: oklch(94% 0.180 102);  /* Dankos #FDF153 */
+  --color-brand-yellow-500: oklch(88% 0.180 100);
+  --color-brand-yellow-600: oklch(78% 0.180 95);
+  --color-brand-yellow-700: oklch(65% 0.160 90);
+
+  /* ── Semantic role → brand mapping ── */
+  --color-primary:        var(--color-brand-blue-500);
+  --color-primary-hover:  var(--color-brand-blue-600);
+  --color-primary-active: var(--color-brand-blue-700);
+  --color-primary-fg:     oklch(99% 0 0);
+  --color-primary-tint:   var(--color-brand-blue-50);
+
+  --color-accent:         var(--color-brand-yellow-400);
+  --color-accent-hover:   var(--color-brand-yellow-500);
+  --color-accent-fg:      var(--color-brand-blue-800);   /* dark blue text on yellow */
+  --color-accent-tint:    var(--color-brand-yellow-50);
+
+  /* ── Neutrals (blue-tinted for cohesion) ── */
+  --color-bg:        oklch(99% 0.005 263);
+  --color-bg-subtle: oklch(97% 0.010 263);
+  --color-surface:   oklch(100% 0 0);
+  --color-fg:        oklch(22% 0.040 263);
+  --color-fg-muted:  oklch(52% 0.030 263);
+  --color-fg-subtle: oklch(70% 0.020 263);
+  --color-border:    oklch(90% 0.012 263);
+  --color-border-strong: oklch(82% 0.020 263);
+
+  /* ── Semantic state colors (independent of brand) ── */
+  --color-success:    oklch(62% 0.16 145);
+  --color-success-fg: oklch(99% 0 0);
+  --color-success-tint: oklch(96% 0.04 145);
+
+  --color-warning:    oklch(75% 0.16 70);
+  --color-warning-fg: oklch(22% 0.04 70);
+  --color-warning-tint: oklch(97% 0.05 70);
+
+  --color-danger:     oklch(58% 0.22 25);
+  --color-danger-fg:  oklch(99% 0 0);
+  --color-danger-tint: oklch(96% 0.05 25);
+
+  --color-info:       oklch(60% 0.12 230);
+  --color-info-fg:    oklch(99% 0 0);
+  --color-info-tint:  oklch(96% 0.04 230);
+
+  /* ── Typography ── */
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), 'JetBrains Mono', monospace;
+
+  /* ── Radius ── */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-xs: 0 1px 2px oklch(20% 0.05 263 / 0.04);
+  --shadow-sm: 0 2px 6px oklch(20% 0.05 263 / 0.06);
+  --shadow-md: 0 6px 16px oklch(20% 0.05 263 / 0.08);
+  --shadow-lg: 0 16px 40px oklch(20% 0.05 263 / 0.12);
+  --shadow-xl: 0 24px 60px oklch(20% 0.05 263 / 0.16);
+  --shadow-focus: 0 0 0 3px oklch(48% 0.13 263 / 0.30);
+
+  /* ── Motion ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 360ms;
+}
+
+/* ── Dark mode (scaffolded; not enabled by default) ── */
+[data-theme="dark"] {
+  --color-bg:        oklch(18% 0.020 263);
+  --color-bg-subtle: oklch(22% 0.025 263);
+  --color-surface:   oklch(25% 0.030 263);
+  --color-fg:        oklch(95% 0.010 263);
+  --color-fg-muted:  oklch(72% 0.020 263);
+  --color-fg-subtle: oklch(55% 0.020 263);
+  --color-border:    oklch(32% 0.030 263);
+  --color-border-strong: oklch(42% 0.040 263);
+  --color-primary-tint: oklch(28% 0.080 263);
+  --color-accent-tint:  oklch(32% 0.080 102);
+}
+
+/* ── Base styles ── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Visible focus ring for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* Scrollbar (subtle, brand-tinted) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-fg-subtle);
+}
+
+/* ── Motion helpers ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+  animation: fadeIn var(--duration-base) var(--ease-out);
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-subtle) 25%,
+    var(--color-border) 50%,
+    var(--color-bg-subtle) 75%
+  );
+  background-size: 200% auto;
+  animation: shimmer 1.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
