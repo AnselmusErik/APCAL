@@ -130,3 +130,4 @@
 /Users/virgiseptian/Documents/Dinar/apotek/Apotech.Backend/obj/Debug/net10.0/Apotech.Backend.pdb
 /Users/virgiseptian/Documents/Dinar/apotek/Apotech.Backend/obj/Debug/net10.0/Apotech.Backend.genruntimeconfig.cache
 /Users/virgiseptian/Documents/Dinar/apotek/Apotech.Backend/obj/Debug/net10.0/ref/Apotech.Backend.dll
+/Users/virgiseptian/Documents/Dinar/apotek/Apotech.Backend/obj/Debug/net10.0/Apotech.Backend.sourcelink.json

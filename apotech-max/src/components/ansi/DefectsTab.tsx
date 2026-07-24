@@ -8,7 +8,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CheckCircle2, ClipboardCheck, XCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -41,6 +41,15 @@ export function DefectsTab({ samplingResult }: DefectsTabProps) {
   const [loading, setLoading] = useState(false)
   const [evaluationResult, setEvaluationResult] = useState<EvaluationResponse | null>(null)
 
+  useEffect(() => {
+    if (samplingResult?.initialDefects) {
+      setDefects(samplingResult.initialDefects)
+    } else {
+      setDefects({ critical: 0, major: 0, minor: 0 })
+    }
+    setEvaluationResult(null)
+  }, [samplingResult])
+
   async function handleEvaluate() {
     if (!samplingResult) {
       toast.error('Silakan hitung Sampling Plan terlebih dahulu di tab sebelumnya')
@@ -49,7 +58,7 @@ export function DefectsTab({ samplingResult }: DefectsTabProps) {
 
     setLoading(true)
     try {
-      const response = await fetch('/api/ansi/evaluate', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ansi/evaluate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ samplingResult, defectCounts: defects })
@@ -61,6 +70,22 @@ export function DefectsTab({ samplingResult }: DefectsTabProps) {
       }
 
       setEvaluationResult(data.data)
+
+      // Update riwayat di database jika historyId ada
+      if (samplingResult.historyId) {
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/history/sampling/${samplingResult.historyId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            decision: data.data.decision,
+            decisionReason: data.data.reason,
+            defectCounts: defects,
+          }),
+        }).catch(() => {
+          // ignore error background sync
+        })
+      }
+
       toast.success('Evaluasi berhasil')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Terjadi kesalahan')

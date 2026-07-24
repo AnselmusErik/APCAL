@@ -2,7 +2,8 @@
  * Client-side ANSI/AQL Calculator Types
  */
 
-export type TabType = 'sampling' | 'defects' | 'verification' | 'references' | 'guide'
+export type TabType = 'sampling' | 'defects' | 'history' | 'references' | 'guide'
+
 
 /**
  * Inspection Code — determines which column in ANSI Table I
@@ -33,6 +34,8 @@ export interface ApiResponse<T = any> {
 }
 
 export interface SamplingPlanResponse {
+  historyId?: string
+  initialDefects?: DefectInput
   productName: string
   batchNumber: string
   lotSize: number
@@ -80,6 +83,13 @@ export interface ReferenceData {
   lotCodeMappings: Array<{
     minSize: number
     maxSize: number
+    s1?: string
+    s2?: string
+    s3?: string
+    s4?: string
+    gi?: string
+    gii?: string
+    giii?: string
     code: string
   }>
   samplingPlans: Array<{

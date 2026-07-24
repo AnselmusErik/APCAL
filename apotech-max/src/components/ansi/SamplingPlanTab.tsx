@@ -33,6 +33,40 @@ import type {
   SamplingPlanResponse
 } from '@/types/ansi'
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Simpan hasil kalkulasi sampling plan ke PostgreSQL via C# backend.
+ * Dipanggil fire-and-forget setelah kalkulasi berhasil (tidak memblokir UI).
+ */
+async function saveHistoryToDb(result: SamplingPlanResponse): Promise<string | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '/api'
+    const res = await fetch(`${baseUrl}/history/sampling`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        productName:         result.productName,
+        batchNumber:         result.batchNumber,
+        lotSize:             result.lotSize,
+        letterCode:          result.letterCode,
+        sampleSize:          result.samplingPlan.sampleSize,
+        inspectionLevel:     result.inspectionLevel,
+        inspectionCode:      result.inspectionCode,
+        inspectionCodeLabel: result.inspectionCodeLabel,
+        inspectionTypeLabel: result.inspectionTypeLabel,
+        samplingPlanCritical: { ac: result.samplingPlan.critical.ac, re: result.samplingPlan.critical.re },
+        samplingPlanMajor:    { ac: result.samplingPlan.major.ac,    re: result.samplingPlan.major.re    },
+        samplingPlanMinor:    { ac: result.samplingPlan.minor.ac,    re: result.samplingPlan.minor.re    },
+      }),
+    })
+    const json = await res.json()
+    return json.success ? json.data?.id : null
+  } catch {
+    return null
+  }
+}
+
 interface SamplingPlanTabProps {
   onSamplingPlanCalculated: (result: SamplingPlanResponse) => void
 }
@@ -90,7 +124,7 @@ export function SamplingPlanTab({ onSamplingPlanCalculated }: SamplingPlanTabPro
   async function handleSubmit() {
     setLoading(true)
     try {
-      const response = await fetch('/api/ansi/sampling-plan', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ansi/sampling-plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -104,8 +138,13 @@ export function SamplingPlanTab({ onSamplingPlanCalculated }: SamplingPlanTabPro
         throw new Error(data.error || 'Gagal menghitung sampling plan')
       }
 
-      setResult(data.data)
-      onSamplingPlanCalculated(data.data)
+      // Simpan ke PostgreSQL via C# backend dan dapatkan historyId
+      const historyId = await saveHistoryToDb(data.data)
+      const resWithHistory = { ...data.data, historyId: historyId ?? undefined }
+
+      setResult(resWithHistory)
+      onSamplingPlanCalculated(resWithHistory)
+
       setStep(3)
       toast.success('Sampling plan berhasil dihitung')
     } catch (error) {
@@ -392,6 +431,9 @@ function SamplingPlanResult({ result }: { result: SamplingPlanResponse }) {
           </span>
         </div>
 
+        {/* ── Titik ATB ── */}
+        <AtbSection n={samplingPlan.sampleSize} />
+
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-[color:var(--color-fg-muted)] mb-2">
             Batas Ac / Re
@@ -425,3 +467,38 @@ function Stat({ label, value, highlight }: { label: string; value: React.ReactNo
     </div>
   )
 }
+
+function AtbSection({ n }: { n: number }) {
+  const p1 = Math.floor(n / 3)
+  const p2 = Math.floor(n / 3)
+  const p3 = n - p1 - p2
+
+  return (
+    <div className="rounded-[var(--radius-md)] border border-[color:var(--color-primary)] bg-[color:var(--color-primary-tint)] px-4 py-3">
+      <p className="text-xs font-semibold uppercase tracking-wider text-[color:var(--color-primary)] mb-3">
+        Titik ATB — Pembagian Pengambilan Sampel ({n} ÷ 3)
+      </p>
+      <div className="grid grid-cols-3 gap-3 text-center">
+        {([
+          { label: 'Titik 1', val: p1 },
+          { label: 'Titik 2', val: p2 },
+          { label: 'Titik 3', val: p3 },
+        ] as const).map(({ label, val }) => (
+          <div key={label} className="bg-white/60 rounded-[var(--radius-sm)] py-2.5 px-2">
+            <p className="text-[10px] font-semibold text-[color:var(--color-fg-muted)] uppercase tracking-wider">
+              {label}
+            </p>
+            <p className="text-2xl font-bold text-[color:var(--color-primary)] tabular-nums leading-tight">
+              {val}
+            </p>
+            <p className="text-[10px] text-[color:var(--color-fg-subtle)]">unit</p>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-[color:var(--color-fg-muted)] mt-2 text-center">
+        Pengambilan sampel dibagi merata di 3 titik lokasi berbeda
+      </p>
+    </div>
+  )
+}
+

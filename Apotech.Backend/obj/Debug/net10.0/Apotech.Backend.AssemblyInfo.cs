@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Apotech.Backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6872e489bc9d27458c8da25b8c5a622bf7f144c8")]
 [assembly: System.Reflection.AssemblyProductAttribute("Apotech.Backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Apotech.Backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

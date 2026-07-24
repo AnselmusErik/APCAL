@@ -1,7 +1,6 @@
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { authService } from "@/server/services/authService";
-import { rbacService } from "@/server/services/rbacService";
+
 
 export const authOptions = {
   providers: [
@@ -15,14 +14,22 @@ export const authOptions = {
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          const user = await authService.validateCredentials(
-            credentials.email,
-            credentials.password
-          );
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/Auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+          });
+          
+          if (!res.ok) return null;
+          const data = await res.json();
+          const user = data.user;
+
           return {
             id: user.id,
             email: user.email,
             name: user.name,
+            roles: user.roles,
+            permissions: user.permissions
           };
         } catch {
           return null;
@@ -35,8 +42,8 @@ export const authOptions = {
     async jwt({ token, user }: any) {
       if (user) {
         token.id = user.id;
-        token.roles = await rbacService.getUserRoles(user.id);
-        token.permissions = await rbacService.getUserPermissions(user.id);
+        token.roles = user.roles;
+        token.permissions = user.permissions;
       }
       return token;
     },

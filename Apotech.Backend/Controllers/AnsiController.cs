@@ -14,6 +14,19 @@ public class AnsiController : ControllerBase
     {
         _ansiService = ansiService;
     }
+    [HttpPost("sampling-plan")]
+    public IActionResult CalculateSamplingPlan([FromBody] SamplingRequest request)
+    {
+        try
+        {
+            var result = _ansiService.CalculateSamplingPlan(request);
+            return Ok(new { success = true, data = result });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { success = false, error = ex.Message });
+        }
+    }
 
     [HttpPost("evaluate")]
     public IActionResult Evaluate([FromBody] EvaluationRequest request)

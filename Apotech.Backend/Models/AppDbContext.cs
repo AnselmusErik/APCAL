@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +27,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
+    public virtual DbSet<SamplingHistory> SamplingHistories { get; set; }
+
     public virtual DbSet<Session> Sessions { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
@@ -36,8 +38,14 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<VerificationToken> VerificationTokens { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=apotech;Username=virgiseptian");
+    {
+        // Only configure if not already configured by DI (Program.cs).
+        // This fallback is used only for EF Core tooling (e.g., dotnet ef migrations).
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseNpgsql("Host=localhost;Database=apotek_sample;Username=virgiseptian");
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -283,6 +291,50 @@ public partial class AppDbContext : DbContext
         });
 
         OnModelCreatingPartial(modelBuilder);
+
+        // ─── SamplingHistory ────────────────────────────────────────────────
+        modelBuilder.Entity<SamplingHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("sampling_histories_pkey");
+            entity.ToTable("sampling_histories");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.ProductName).HasColumnName("productName");
+            entity.Property(e => e.BatchNumber).HasColumnName("batchNumber");
+            entity.Property(e => e.LotSize).HasColumnName("lotSize");
+            entity.Property(e => e.LetterCode).HasColumnName("letterCode");
+            entity.Property(e => e.SampleSize).HasColumnName("sampleSize");
+            entity.Property(e => e.InspectionLevel).HasColumnName("inspectionLevel");
+            entity.Property(e => e.InspectionCode).HasColumnName("inspectionCode");
+            entity.Property(e => e.InspectionCodeLabel).HasColumnName("inspectionCodeLabel");
+            entity.Property(e => e.InspectionTypeLabel).HasColumnName("inspectionTypeLabel");
+            entity.Property(e => e.PlanCriticalAc).HasColumnName("planCriticalAc");
+            entity.Property(e => e.PlanCriticalRe).HasColumnName("planCriticalRe");
+            entity.Property(e => e.PlanMajorAc).HasColumnName("planMajorAc");
+            entity.Property(e => e.PlanMajorRe).HasColumnName("planMajorRe");
+            entity.Property(e => e.PlanMinorAc).HasColumnName("planMinorAc");
+            entity.Property(e => e.PlanMinorRe).HasColumnName("planMinorRe");
+            entity.Property(e => e.Decision).HasColumnName("decision");
+            entity.Property(e => e.DecisionReason).HasColumnName("decisionReason");
+            entity.Property(e => e.DefectCritical).HasColumnName("defectCritical");
+            entity.Property(e => e.DefectMajor).HasColumnName("defectMajor");
+            entity.Property(e => e.DefectMinor).HasColumnName("defectMinor");
+            entity.Property(e => e.CreatedById).HasColumnName("createdById");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp(3) without time zone")
+                .HasColumnName("createdAt");
+
+            entity.HasIndex(e => e.CreatedAt).HasDatabaseName("sampling_histories_createdAt_idx");
+
+            entity.HasOne(d => d.CreatedBy)
+                .WithMany()
+                .HasForeignKey(d => d.CreatedById)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("sampling_histories_createdById_fkey");
+        });
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

@@ -20,4 +20,5 @@ export * from './tabs'
 export * from './table'
 export * from './spinner'
 export * from './sidebar'
+export * from './confirm-dialog/ConfirmDialog'
 

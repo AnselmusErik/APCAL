@@ -44,7 +44,7 @@ export function GuideTab() {
     let cancelled = false
     ;(async () => {
       try {
-        const response = await fetch('/api/ansi/references')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ansi/references`)
         const result: ApiResponse<ReferenceData> = await response.json()
         if (cancelled) return
         if (result.success && result.data) {

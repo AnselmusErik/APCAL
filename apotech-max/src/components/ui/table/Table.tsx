@@ -90,7 +90,7 @@ export const TableRow = React.forwardRef<
     <tr
       ref={ref}
       className={cn(
-        'transition-colors hover:bg-[color:var(--color-bg-subtle)]',
+        'transition-colors',
         className
       )}
       {...rest}

@@ -1,7 +1,7 @@
 // @ts-ignore - TypeScript has issues with next-auth/jwt exports
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
-import { handleApiError } from "@/server/utils/errors";
+import { handleApiError } from "@/utils/errors";
 
 type RouteHandler = (req: NextRequest, context?: unknown) => Promise<NextResponse>;
 

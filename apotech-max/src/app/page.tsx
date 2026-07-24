@@ -1,13 +1,12 @@
 /**
  * APCAL (ANSI Pharma Calculator) — Home page.
  *
- * Navigation refactored from horizontal tabs → left vertical sidebar.
- * All business logic, state management, and tab content are unchanged.
+ * Navigation: left vertical sidebar.
  *
- * The 5-section flow:
+ * Menu:
  *   1. Sampling Plan    — define lot + inspection level
  *   2. Input Cacat      — enter defect counts, get decision
- *   3. Verifikasi Produk — product verification
+ *   3. Riwayat          — calculation history (localStorage)
  *   4. Tabel Referensi  — Z1.4 II-A / II-B / II-C tables
  *   5. Panduan          — defect classification + decision flow
  */
@@ -18,7 +17,7 @@ import { useState } from 'react'
 import {
   BookOpen,
   ClipboardCheck,
-  ClipboardList,
+  Clock,
   Table as TableIcon,
   Workflow
 } from 'lucide-react'
@@ -29,16 +28,16 @@ import { SamplingPlanTab } from '@/components/ansi/SamplingPlanTab'
 import { DefectsTab } from '@/components/ansi/DefectsTab'
 import { ReferencesTab } from '@/components/ansi/ReferencesTab'
 import { GuideTab } from '@/components/ansi/GuideTab'
-import { VerificationTab } from '@/components/ansi/VerificationTab'
+import { HistoryTab } from '@/components/ansi/HistoryTab'
 
 import type { SamplingPlanResponse, TabType } from '@/types/ansi'
 
 const NAV_ITEMS: SidebarItem[] = [
-  { id: 'sampling',      label: 'Sampling Plan',      Icon: Workflow       },
-  { id: 'defects',       label: 'Input Cacat',         Icon: ClipboardCheck },
-  { id: 'verification',  label: 'Verifikasi Produk',   Icon: ClipboardList  },
-  { id: 'references',    label: 'Tabel Referensi',     Icon: TableIcon      },
-  { id: 'guide',         label: 'Panduan',             Icon: BookOpen       },
+  { id: 'sampling',    label: 'Sampling Plan',   Icon: Workflow       },
+  { id: 'defects',     label: 'Input Cacat',      Icon: ClipboardCheck },
+  { id: 'history',     label: 'Riwayat',          Icon: Clock          },
+  { id: 'references',  label: 'Tabel Referensi',  Icon: TableIcon      },
+  { id: 'guide',       label: 'Panduan',          Icon: BookOpen       },
 ]
 
 export default function Home() {
@@ -55,8 +54,31 @@ export default function Home() {
     </div>
   )
 
+  function handleSelectHistoryItem(entry: any) {
+    const samplingPlanRes: SamplingPlanResponse = {
+      historyId: entry.id,
+      productName: entry.productName ?? '',
+      batchNumber: entry.batchNumber ?? '',
+      lotSize: entry.lotSize,
+      inspectionLevel: entry.inspectionLevel as any,
+      inspectionCode: entry.inspectionCode as any,
+      inspectionCodeLabel: entry.inspectionCodeLabel,
+      letterCode: entry.letterCode,
+      inspectionTypeLabel: entry.inspectionTypeLabel,
+      initialDefects: entry.defectCounts ?? undefined,
+      samplingPlan: {
+        code: entry.letterCode,
+        sampleSize: entry.sampleSize,
+        critical: entry.critical,
+        major: entry.major,
+        minor: entry.minor,
+      },
+    }
+    setSamplingResult(samplingPlanRes)
+    setTab('defects')
+  }
+
   return (
-    /* Full-viewport flex row — sidebar left, content right */
     <div className="flex min-h-screen bg-[color:var(--color-bg-subtle)]">
 
       <AppSidebar
@@ -66,14 +88,11 @@ export default function Home() {
         header={sidebarHeader}
       />
 
-      {/* ── Main content area ── */}
       <main className="flex-1 min-w-0 overflow-y-auto">
-        {/* Mobile top spacing so hamburger doesn't overlap content */}
         <div className="md:hidden h-16" aria-hidden />
 
         <div className="max-w-5xl mx-auto px-4 md:px-8 py-8">
 
-          {/* Page header — visible on md+ (mobile uses sidebar logo) */}
           <header className="hidden md:flex flex-col gap-1 mb-8">
             <h1 className="text-2xl font-bold tracking-tight text-[color:var(--color-fg)]">
               APCAL — ANSI Pharma Calculator
@@ -83,11 +102,6 @@ export default function Home() {
             </p>
           </header>
 
-          {/*
-            Radix Tabs.Root manages the active panel state.
-            TabsList / TabsTrigger are intentionally omitted — the sidebar
-            drives navigation by syncing the `value` prop.
-          */}
           <Tabs value={tab} onValueChange={(v) => setTab(v as TabType)}>
             <TabsContent value="sampling">
               <SamplingPlanTab onSamplingPlanCalculated={setSamplingResult} />
@@ -95,8 +109,8 @@ export default function Home() {
             <TabsContent value="defects">
               <DefectsTab samplingResult={samplingResult} />
             </TabsContent>
-            <TabsContent value="verification">
-              <VerificationTab />
+            <TabsContent value="history">
+              <HistoryTab onSelectForEvaluation={handleSelectHistoryItem} />
             </TabsContent>
             <TabsContent value="references">
               <ReferencesTab />

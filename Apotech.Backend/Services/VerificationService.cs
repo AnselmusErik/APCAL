@@ -35,8 +35,8 @@ public class VerificationService : IVerificationService
             Keterangan = request.Keterangan,
             Kesimpulan = request.Kesimpulan,
             CreatedById = createdById,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+            UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
         };
 
         var position = 1;
@@ -50,7 +50,7 @@ public class VerificationService : IVerificationService
                 ContainerType = findingDto.ContainerType,
                 FindingCount = findingDto.FindingCount,
                 Description = findingDto.Description,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
             });
         }
 

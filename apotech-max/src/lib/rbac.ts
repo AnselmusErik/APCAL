@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth/next";
-import { ForbiddenError, UnauthorizedError } from "@/server/utils/errors";
+import { ForbiddenError, UnauthorizedError } from "@/utils/errors";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 /**

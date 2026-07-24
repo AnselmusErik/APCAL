@@ -30,8 +30,7 @@ public class AnsiService : IAnsiService
         new(10001,   35000,   "C","D","F","H","K","M","N"),
         new(35001,   150000,  "D","E","G","J","L","N","P"),
         new(150001,  500000,  "D","E","G","J","M","P","Q"),
-        new(500001,  2000000, "D","E","H","K","N","Q","R"),
-        new(2000001, 9999999, "D","E","H","K","P","R","R"),
+        new(500001,  99999999,"D","E","H","K","N","Q","R"),
     };
 
     // ─── Inspection Code Labels ──────────────────────────────────────────────
@@ -55,11 +54,11 @@ public class AnsiService : IAnsiService
         { "A", new SamplingPlan { Code="A", SampleSize=2,    Critical=new(0,1), Major=new(0,1),   Minor=new(0,1)   } },
         { "B", new SamplingPlan { Code="B", SampleSize=3,    Critical=new(0,1), Major=new(0,1),   Minor=new(0,1)   } },
         { "C", new SamplingPlan { Code="C", SampleSize=5,    Critical=new(0,1), Major=new(0,1),   Minor=new(0,1)   } },
-        { "D", new SamplingPlan { Code="D", SampleSize=8,    Critical=new(0,1), Major=new(0,1),   Minor=new(0,1)   } },
+        { "D", new SamplingPlan { Code="D", SampleSize=8,    Critical=new(0,1), Major=new(0,1),   Minor=new(1,2)   } },
         { "E", new SamplingPlan { Code="E", SampleSize=13,   Critical=new(0,1), Major=new(0,1),   Minor=new(1,2)   } },
         { "F", new SamplingPlan { Code="F", SampleSize=20,   Critical=new(0,1), Major=new(1,2),   Minor=new(2,3)   } },
-        { "G", new SamplingPlan { Code="G", SampleSize=32,   Critical=new(0,1), Major=new(2,3),   Minor=new(3,4)   } },
-        { "H", new SamplingPlan { Code="H", SampleSize=50,   Critical=new(0,1), Major=new(3,4),   Minor=new(5,6)   } },
+        { "G", new SamplingPlan { Code="G", SampleSize=32,   Critical=new(0,1), Major=new(1,2),   Minor=new(3,4)   } },
+        { "H", new SamplingPlan { Code="H", SampleSize=50,   Critical=new(0,1), Major=new(2,3),   Minor=new(3,4)   } },
         { "J", new SamplingPlan { Code="J", SampleSize=80,   Critical=new(0,1), Major=new(5,6),   Minor=new(7,8)   } },
         { "K", new SamplingPlan { Code="K", SampleSize=125,  Critical=new(0,1), Major=new(7,8),   Minor=new(10,11) } },
         { "L", new SamplingPlan { Code="L", SampleSize=200,  Critical=new(0,1), Major=new(10,11), Minor=new(14,15) } },
@@ -231,15 +230,61 @@ public class AnsiService : IAnsiService
 
     public object GetReferenceTables()
     {
+        var defectClassifications = new[]
+        {
+            new
+            {
+                type = "critical",
+                aql = "0%",
+                colorCode = "#d9534f",
+                icon = "🔴",
+                examples = new[] { "Partikel asing (logam, kaca)", "Kebocoran vial/ampul", "Kontaminasi mikroba", "Label salah produk / kekuatan sediaan", "Kerusakan segel sterilitas", "Warna sediaan tidak sesuai" }
+            },
+            new
+            {
+                type = "major",
+                aql = "2.5%",
+                colorCode = "#f0ad4e",
+                icon = "🟠",
+                examples = new[] { "Kerusakan fisik ringan tapi fungsi terganggu", "Printing blur / batch number tidak jelas", "Kesalahan minor pada leaflet", "Vial retak (tanpa bocor)", "Segel aluminium longgar tapi tidak lepas" }
+            },
+            new
+            {
+                type = "minor",
+                aql = "4%",
+                colorCode = "#5bc0de",
+                icon = "🟢",
+                examples = new[] { "Goresan luar tidak mempengaruhi sterilitas", "Kemasan luar (kardus) penyok", "Perbedaan warna segel yang tidak kritis", "Bekas lem berlebih pada label", "Tulisan pada etiket sedikit buram namun masih terbaca" }
+            }
+        };
+
+        var switchingRules = new
+        {
+            normalToTightened = new { condition = "2 dari 5 lot berturut-turut ditolak (Reject)", action = "Beralih dari Normal ke Diperketat (Tightened)" },
+            tightenedToNormal = new { condition = "5 lot berturut-turut diterima (Accept) pada inspeksi diperketat", action = "Beralih dari Diperketat ke Normal" },
+            normalToReduced = new { condition = "10 lot berturut-turut diterima (Accept) pada inspeksi normal", action = "Beralih dari Normal ke Diperlonggar (Reduced)" },
+            reducedToNormal = new { condition = "1 lot ditolak (Reject) pada inspeksi diperlonggar", action = "Beralih dari Diperlonggar ke Normal" }
+        };
+
         return new
         {
-            AnsiTableI   = AnsiTableI.Select(r => new {
-                r.MinSize, r.MaxSize,
-                r.S1, r.S2, r.S3, r.S4, r.GI, r.GII, r.GIII
+            lotCodeMappings = AnsiTableI.Select(r => new {
+                r.MinSize,
+                r.MaxSize,
+                s1 = r.S1,
+                s2 = r.S2,
+                s3 = r.S3,
+                s4 = r.S4,
+                gi = r.GI,
+                gii = r.GII,
+                giii = r.GIII,
+                code = r.GII
             }),
-            NormalPlans    = NormalPlans.Values,
-            TightenedPlans = TightenedPlans.Values,
-            ReducedPlans   = ReducedPlans.Values,
+            samplingPlans = NormalPlans.Values,
+            tightenedPlans = TightenedPlans.Values,
+            reducedPlans = ReducedPlans.Values,
+            defectClassifications,
+            switchingRules
         };
     }
 

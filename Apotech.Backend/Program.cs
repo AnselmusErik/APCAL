@@ -4,14 +4,24 @@ using Apotech.Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add DbContext
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? "Host=localhost;Database=apotech;Username=virgiseptian";
+// Add DbContext — register custom PostgreSQL enums at DataSource level
+// Required by Npgsql: custom enum types must be mapped on the connection/data source,
+// not just in OnModelCreating, otherwise SaveChangesAsync throws on enum serialization.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Host=localhost;Database=apotek_sample;Username=virgiseptian";
+
+var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+dataSourceBuilder.MapEnum<UnitType>("UnitType");
+dataSourceBuilder.MapEnum<InspectionGeneralLevel>("InspectionGeneralLevel");
+dataSourceBuilder.MapEnum<ContainerType>("ContainerType");
+var dataSource = dataSourceBuilder.Build();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(dataSource));
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -49,6 +59,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVerificationService, VerificationService>();
 builder.Services.AddScoped<IAnsiService, AnsiService>();
+builder.Services.AddScoped<IHistoryService, HistoryService>();
 
 var app = builder.Build();
 

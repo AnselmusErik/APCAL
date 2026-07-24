@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
 
-  const { mutate, loading } = useApiMutation("/api/auth/register", "POST", {
+  const { mutate, loading } = useApiMutation(`${process.env.NEXT_PUBLIC_API_BASE_URL}/Auth/register`, "POST", {
     successMessage: "Account created! Please sign in.",
     onSuccess: () => router.push("/login"),
   });
