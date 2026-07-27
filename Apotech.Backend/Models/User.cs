@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Apotech.Backend.Models;
@@ -11,11 +11,18 @@ public partial class User
 
     public string Email { get; set; } = null!;
 
+
     public DateTime? EmailVerified { get; set; }
 
     public string? Image { get; set; }
 
     public string? Password { get; set; }
+
+    public int FailedAttemptCount { get; set; } = 0;
+
+    public DateTime? LockoutEnd { get; set; }
+
+    public bool IsLocked { get; set; } = false;
 
     public DateTime CreatedAt { get; set; }
 

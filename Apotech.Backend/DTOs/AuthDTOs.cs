@@ -13,8 +13,14 @@ public class LoginRequest
     public string Password { get; set; } = null!;
 }
 
+public class RefreshTokenRequest
+{
+    public string RefreshToken { get; set; } = null!;
+}
+
 public class AuthResponse
 {
     public string Token { get; set; } = null!;
+    public string RefreshToken { get; set; } = null!;
     public object User { get; set; } = null!;
 }

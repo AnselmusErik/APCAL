@@ -9,8 +9,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { CheckCircle2, ClipboardCheck, XCircle } from 'lucide-react'
+import { CheckCircle2, ClipboardCheck, XCircle, Printer } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { printPdfReport } from '@/lib/pdf-report'
 
 import {
   Alert,
@@ -219,8 +220,8 @@ function DecisionResult({ result }: { result: EvaluationResponse }) {
           : 'border-l-4 border-l-[color:var(--color-danger)]'
       }
     >
-      <CardHeader>
-        <div className="flex items-center gap-3">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div className="flex items-center gap-3 flex-wrap">
           {accepted ? (
             <CheckCircle2 className="h-7 w-7 text-[color:var(--color-success)]" aria-hidden />
           ) : (
@@ -237,6 +238,37 @@ function DecisionResult({ result }: { result: EvaluationResponse }) {
             {accepted ? 'ACCEPT' : 'REJECT'}
           </Badge>
         </div>
+
+        {result.summary && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              printPdfReport({
+                id: 'NEW',
+                productName: result.summary.productName,
+                batchNumber: result.summary.batchNumber,
+                lotSize: result.summary.lotSize,
+                letterCode: result.summary.letterCode,
+                sampleSize: result.summary.sampleSize,
+                inspectionLevel: 'normal',
+                inspectionCode: 'GII',
+                inspectionCodeLabel: 'General II',
+                inspectionTypeLabel: 'Normal',
+                critical: { ac: 0, re: 1 },
+                major: result.summary.limits.major,
+                minor: result.summary.limits.minor,
+                decision: result.decision,
+                decisionReason: result.reason,
+                defectCounts: result.summary.defectCounts,
+                createdAt: new Date().toISOString(),
+              })
+            }
+            iconLeft={<Printer className="h-4 w-4 text-[color:var(--color-primary)]" />}
+          >
+            Cetak PDF Record
+          </Button>
+        )}
       </CardHeader>
 
       <CardBody className="space-y-4">

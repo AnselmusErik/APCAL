@@ -13,9 +13,10 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Clock, Trash2, ClipboardCheck, RefreshCw, Search, Filter, X } from 'lucide-react'
+import { Clock, Trash2, ClipboardCheck, RefreshCw, Search, Filter, X, Printer, Pencil, Check } from 'lucide-react'
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Spinner, ConfirmDialog } from '@/components/ui'
 import { AcReBadge } from '@/components/patterns'
+import { printPdfReport } from '@/lib/pdf-report'
 import toast from 'react-hot-toast'
 
 // ── Types (matching C# SamplingHistoryDto) ────────────────────────────────────
@@ -76,9 +77,59 @@ export function HistoryTab({ onSelectForEvaluation }: HistoryTabProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [isClearingAll, setIsClearingAll] = useState(false)
 
-  // Modals state
+  // Modals & Edit state
   const [itemToDelete, setItemToDelete] = useState<HistoryEntry | null>(null)
   const [isClearAllOpen, setIsClearAllOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<HistoryEntry | null>(null)
+  const [editProductName, setEditProductName] = useState('')
+  const [editBatchNumber, setEditBatchNumber] = useState('')
+  const [isSavingEdit, setIsSavingEdit] = useState(false)
+
+  const startEditProduct = (entry: HistoryEntry) => {
+    setEditingItem(entry)
+    setEditProductName(entry.productName || '')
+    setEditBatchNumber(entry.batchNumber || '')
+  }
+
+  const cancelEditProduct = () => {
+    setEditingItem(null)
+    setEditProductName('')
+    setEditBatchNumber('')
+  }
+
+  const handleSaveProductEdit = async () => {
+    if (!editingItem) return
+    setIsSavingEdit(true)
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '/api'
+      const res = await fetch(`${baseUrl}/history/sampling/${editingItem.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productName: editProductName.trim(),
+          batchNumber: editBatchNumber.trim(),
+        }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        toast.success('Nama produk berhasil diperbarui')
+        setEntries((prev) =>
+          prev.map((e) =>
+            e.id === editingItem.id
+              ? { ...e, productName: editProductName.trim(), batchNumber: editBatchNumber.trim() }
+              : e
+          )
+        )
+        cancelEditProduct()
+      } else {
+        toast.error('Gagal memperbarui: ' + (json.error || ''))
+      }
+    } catch {
+      toast.error('Gagal terhubung ke server')
+    } finally {
+      setIsSavingEdit(false)
+    }
+  }
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState('')
@@ -334,9 +385,48 @@ export function HistoryTab({ onSelectForEvaluation }: HistoryTabProps) {
             <CardHeader>
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div>
-                  <CardTitle className="text-base">
-                    {entry.productName || '(Produk tidak diisi)'}
-                  </CardTitle>
+                  {editingItem?.id === entry.id ? (
+                    <div className="flex items-center gap-2 my-1 flex-wrap">
+                      <Input
+                        value={editProductName}
+                        onChange={(e) => setEditProductName(e.target.value)}
+                        placeholder="Nama Produk (mis. Ranitidine Injeksi)"
+                        className="text-xs h-8 min-w-[200px]"
+                      />
+                      <Input
+                        value={editBatchNumber}
+                        onChange={(e) => setEditBatchNumber(e.target.value)}
+                        placeholder="No Batch"
+                        className="text-xs h-8 w-[120px]"
+                      />
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={handleSaveProductEdit}
+                        disabled={isSavingEdit}
+                        iconLeft={isSavingEdit ? <Spinner size="sm" /> : <Check className="h-3.5 w-3.5" />}
+                      >
+                        Simpan
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={cancelEditProduct}>
+                        Batal
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-base">
+                        {entry.productName || '(Produk tidak diisi)'}
+                      </CardTitle>
+                      <button
+                        type="button"
+                        onClick={() => startEditProduct(entry)}
+                        className="text-[color:var(--color-fg-subtle)] hover:text-[color:var(--color-primary)] p-1 rounded-sm transition-colors"
+                        title="Edit Nama Produk & Batch"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  )}
                   <p className="text-xs text-[color:var(--color-fg-muted)] mt-0.5">
                     Batch: <span className="font-medium">{entry.batchNumber || '-'}</span>
                     <span className="mx-1">·</span>
@@ -368,6 +458,16 @@ export function HistoryTab({ onSelectForEvaluation }: HistoryTabProps) {
                   }>
                     {entry.inspectionTypeLabel}
                   </Badge>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => printPdfReport(entry)}
+                    iconLeft={<Printer className="h-4 w-4 text-[color:var(--color-primary)]" />}
+                    title="Cetak Laporan PDF Resmi (Dankos Logo & Form QA)"
+                  >
+                    Cetak PDF
+                  </Button>
 
                   {onSelectForEvaluation && (
                     <Button

@@ -29,4 +29,20 @@ public class UsersController : ControllerBase
             return BadRequest(new { error = ex.Message });
         }
     }
+
+    [Authorize(Roles = "ADMIN")]
+    [HttpPost("{id}/unlock")]
+    public async Task<IActionResult> UnlockUser(string id)
+    {
+        try
+        {
+            var adminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            await _userService.UnlockUserAsync(id, adminId);
+            return Ok(new { message = "User account unlocked successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
 }

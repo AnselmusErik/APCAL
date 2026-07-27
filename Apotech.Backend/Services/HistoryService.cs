@@ -69,11 +69,16 @@ public class HistoryService : IHistoryService
         var entity = await _db.SamplingHistories.FindAsync(id);
         if (entity is null) return null;
 
-        entity.Decision = request.Decision;
-        entity.DecisionReason = request.DecisionReason;
-        entity.DefectCritical = request.DefectCounts.Critical;
-        entity.DefectMajor = request.DefectCounts.Major;
-        entity.DefectMinor = request.DefectCounts.Minor;
+        if (request.ProductName is not null) entity.ProductName = request.ProductName;
+        if (request.BatchNumber is not null) entity.BatchNumber = request.BatchNumber;
+        if (request.Decision is not null) entity.Decision = request.Decision;
+        if (request.DecisionReason is not null) entity.DecisionReason = request.DecisionReason;
+        if (request.DefectCounts is not null)
+        {
+            entity.DefectCritical = request.DefectCounts.Critical;
+            entity.DefectMajor = request.DefectCounts.Major;
+            entity.DefectMinor = request.DefectCounts.Minor;
+        }
 
         await _db.SaveChangesAsync();
         return ToDto(entity);

@@ -42,7 +42,8 @@ export function FormField({
   children
 }: FormFieldProps) {
   const reactId = React.useId()
-  const id = htmlFor ?? (children.props as { id?: string }).id ?? reactId
+  const childProps = children.props as { id?: string; name?: string }
+  const id = htmlFor ?? childProps.id ?? childProps.name ?? reactId
   const descriptionId = helpText || error ? `${id}-desc` : undefined
 
   // Clone the child input to inject id + aria wiring.

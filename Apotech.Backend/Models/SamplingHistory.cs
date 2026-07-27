@@ -44,7 +44,7 @@ public class SamplingHistory
     /// <summary>FK ke users (nullable — kalkulasi boleh dilakukan tanpa login)</summary>
     public string? CreatedById { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     // Navigation
     public User? CreatedBy { get; set; }

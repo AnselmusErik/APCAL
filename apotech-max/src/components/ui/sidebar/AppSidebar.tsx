@@ -15,7 +15,8 @@
  */
 
 import * as React from 'react'
-import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Menu, X, LogOut } from 'lucide-react'
+import { useAuth } from '@/providers/AuthProvider'
 import { cn } from '@/lib/cn'
 
 export interface SidebarItem {
@@ -42,6 +43,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const [collapsed, setCollapsed] = React.useState(false)
   const [mobileOpen, setMobileOpen] = React.useState(false)
+  const { logout } = useAuth()
 
   /** Close mobile overlay when a menu item is selected */
   const handleSelect = (id: string) => {
@@ -190,6 +192,23 @@ export function AppSidebar({
             })}
           </ul>
         </nav>
+
+        {/* ── Footer: User Profile & Logout Button ── */}
+        <div className="border-t border-[color:var(--color-border)] p-2">
+          <button
+            onClick={() => logout()}
+            title={collapsed ? 'Keluar / Logout' : undefined}
+            className={cn(
+              'w-full flex items-center gap-2.5 rounded-[var(--radius-md)] px-2.5 py-2 text-xs font-medium',
+              'text-[color:var(--color-danger)] hover:bg-[color:var(--color-danger-tint)]',
+              'transition-colors duration-[var(--duration-fast)]',
+              collapsed && 'justify-center px-0'
+            )}
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            {!collapsed && <span className="truncate">Keluar (Logout)</span>}
+          </button>
+        </div>
       </aside>
     </>
   )

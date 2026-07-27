@@ -37,6 +37,12 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<VerificationToken> VerificationTokens { get; set; }
 
+    public virtual DbSet<AuditLog> AuditLogs { get; set; }
+
+    public virtual DbSet<TimeSyncLog> TimeSyncLogs { get; set; }
+
+    public virtual DbSet<SystemTimeConfig> SystemTimeConfigs { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // Only configure if not already configured by DI (Program.cs).
@@ -243,9 +249,75 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Image).HasColumnName("image");
             entity.Property(e => e.Name).HasColumnName("name");
             entity.Property(e => e.Password).HasColumnName("password");
+            entity.Property(e => e.FailedAttemptCount).HasColumnName("failedAttemptCount").HasDefaultValue(0);
+            entity.Property(e => e.LockoutEnd).HasColumnType("timestamp(3) without time zone").HasColumnName("lockoutEnd");
+            entity.Property(e => e.IsLocked).HasColumnName("isLocked").HasDefaultValue(false);
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp(3) without time zone")
                 .HasColumnName("updatedAt");
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("audit_logs_pkey");
+            entity.ToTable("audit_logs");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.UserId).HasColumnName("userId");
+            entity.Property(e => e.UserEmail).HasColumnName("userEmail");
+            entity.Property(e => e.Action).HasColumnName("action");
+            entity.Property(e => e.IpAddress).HasColumnName("ipAddress");
+            entity.Property(e => e.Details).HasColumnName("details");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp(3) without time zone")
+                .HasColumnName("createdAt");
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("audit_logs_userId_fkey");
+        });
+
+        modelBuilder.Entity<TimeSyncLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("time_sync_logs_pkey");
+            entity.ToTable("time_sync_logs");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.NtpServer).HasColumnName("ntpServer");
+            entity.Property(e => e.OffsetMs).HasColumnName("offsetMs");
+            entity.Property(e => e.RoundTripMs).HasColumnName("roundTripMs");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.Details).HasColumnName("details");
+            entity.Property(e => e.CheckedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp(3) without time zone")
+                .HasColumnName("checkedAt");
+        });
+
+        modelBuilder.Entity<SystemTimeConfig>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("system_time_configs_pkey");
+            entity.ToTable("system_time_configs");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.NtpServer).HasColumnName("ntpServer");
+            entity.Property(e => e.SyncIntervalSeconds).HasColumnName("syncIntervalSeconds");
+            entity.Property(e => e.MaxDriftThresholdMs).HasColumnName("maxDriftThresholdMs");
+            entity.Property(e => e.TimeZone).HasColumnName("timeZone");
+            entity.Property(e => e.UpdatedById).HasColumnName("updatedById");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp(3) without time zone")
+                .HasColumnName("updatedAt");
+
+            entity.HasOne(d => d.UpdatedBy)
+                .WithMany()
+                .HasForeignKey(d => d.UpdatedById)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("system_time_configs_updatedById_fkey");
         });
 
         modelBuilder.Entity<UserRole>(entity =>

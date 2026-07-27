@@ -29,9 +29,11 @@ public class SaveHistoryRequest
 
 public class UpdateHistoryEvaluationRequest
 {
-    public string Decision { get; set; } = null!;
-    public string DecisionReason { get; set; } = null!;
-    public DefectCount DefectCounts { get; set; } = null!;
+    public string? ProductName { get; set; }
+    public string? BatchNumber { get; set; }
+    public string? Decision { get; set; }
+    public string? DecisionReason { get; set; }
+    public DefectCount? DefectCounts { get; set; }
 }
 
 public class HistoryDefectLimit

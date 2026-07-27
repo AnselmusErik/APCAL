@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { fetchWithAuth } from "@/lib/api";
 
 interface MutationOptions<T> {
   onSuccess?: (data: T) => void;
@@ -23,9 +24,8 @@ export function useApiMutation<TData = unknown, TBody = unknown>(
     setError(null);
 
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithAuth(url, {
         method,
-        headers: { "Content-Type": "application/json" },
         body: body ? JSON.stringify(body) : undefined,
       });
 

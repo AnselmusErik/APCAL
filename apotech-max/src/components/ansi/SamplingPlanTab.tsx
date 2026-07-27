@@ -9,8 +9,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Calculator, ChevronLeft, ChevronRight, Package, Settings2 } from 'lucide-react'
+import { Calculator, ChevronLeft, ChevronRight, Package, Settings2, Printer } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { printPdfReport } from '@/lib/pdf-report'
 
 import {
   Button,
@@ -177,7 +178,7 @@ export function SamplingPlanTab({ onSamplingPlanCalculated }: SamplingPlanTabPro
                   name="productName"
                   value={formData.productName}
                   onChange={handleTextChange}
-                  placeholder="Contoh: Vial Cefotaxime 1g"
+                  placeholder="Contoh: Ranitidine Injeksi 25mg/2ml"
                 />
               </FormField>
 
@@ -402,8 +403,33 @@ function SamplingPlanResult({ result }: { result: SamplingPlanResponse }) {
   const { samplingPlan } = result
   return (
     <Card variant="elevated" padding="none" className="border-l-4 border-l-[color:var(--color-primary)]">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>✅ Hasil Sampling Plan</CardTitle>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            printPdfReport({
+              id: result.historyId || 'NEW',
+              productName: result.productName,
+              batchNumber: result.batchNumber,
+              lotSize: result.lotSize,
+              letterCode: result.letterCode,
+              sampleSize: samplingPlan.sampleSize,
+              inspectionLevel: result.inspectionLevel,
+              inspectionCode: result.inspectionCode,
+              inspectionCodeLabel: result.inspectionCodeLabel,
+              inspectionTypeLabel: result.inspectionTypeLabel,
+              critical: samplingPlan.critical,
+              major: samplingPlan.major,
+              minor: samplingPlan.minor,
+              createdAt: new Date().toISOString(),
+            })
+          }
+          iconLeft={<Printer className="h-4 w-4 text-[color:var(--color-primary)]" />}
+        >
+          Cetak PDF Record
+        </Button>
       </CardHeader>
       <CardBody className="space-y-4">
         {(result.productName || result.batchNumber) && (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -10,22 +10,22 @@ export default function BackofficeLoginPage() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
 
+  const { login } = useAuth();
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
-    const result = await signIn("credentials", {
-      ...form,
-      redirect: false,
-    });
-
-    if (result?.error) {
+    try {
+      await login({
+        email: form.email,
+        password: form.password,
+      });
+      router.push("/backoffice/dashboard");
+    } catch (err: any) {
       toast.error("Access denied");
       setLoading(false);
-      return;
     }
-
-    router.push("/backoffice/dashboard");
   }
 
   return (
