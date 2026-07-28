@@ -90,6 +90,47 @@ namespace Apotech.Backend.Migrations
                     b.ToTable("accounts", (string)null);
                 });
 
+            modelBuilder.Entity("Apotech.Backend.Models.AuditLog", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("action");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp(3) without time zone")
+                        .HasColumnName("createdAt")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("text")
+                        .HasColumnName("details");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("text")
+                        .HasColumnName("ipAddress");
+
+                    b.Property<string>("UserEmail")
+                        .HasColumnType("text")
+                        .HasColumnName("userEmail");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("userId");
+
+                    b.HasKey("Id")
+                        .HasName("audit_logs_pkey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("audit_logs", (string)null);
+                });
+
             modelBuilder.Entity("Apotech.Backend.Models.Permission", b =>
                 {
                     b.Property<string>("Id")
@@ -459,6 +500,88 @@ namespace Apotech.Backend.Migrations
                     b.ToTable("sessions", (string)null);
                 });
 
+            modelBuilder.Entity("Apotech.Backend.Models.SystemTimeConfig", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<int>("MaxDriftThresholdMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("maxDriftThresholdMs");
+
+                    b.Property<string>("NtpServer")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ntpServer");
+
+                    b.Property<int>("SyncIntervalSeconds")
+                        .HasColumnType("integer")
+                        .HasColumnName("syncIntervalSeconds");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("timeZone");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp(3) without time zone")
+                        .HasColumnName("updatedAt")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("text")
+                        .HasColumnName("updatedById");
+
+                    b.HasKey("Id")
+                        .HasName("system_time_configs_pkey");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("system_time_configs", (string)null);
+                });
+
+            modelBuilder.Entity("Apotech.Backend.Models.TimeSyncLog", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CheckedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp(3) without time zone")
+                        .HasColumnName("checkedAt")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("text")
+                        .HasColumnName("details");
+
+                    b.Property<string>("NtpServer")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ntpServer");
+
+                    b.Property<double>("OffsetMs")
+                        .HasColumnType("double precision")
+                        .HasColumnName("offsetMs");
+
+                    b.Property<double>("RoundTripMs")
+                        .HasColumnType("double precision")
+                        .HasColumnName("roundTripMs");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("time_sync_logs_pkey");
+
+                    b.ToTable("time_sync_logs", (string)null);
+                });
+
             modelBuilder.Entity("Apotech.Backend.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -480,9 +603,25 @@ namespace Apotech.Backend.Migrations
                         .HasColumnType("timestamp(3) without time zone")
                         .HasColumnName("emailVerified");
 
+                    b.Property<int>("FailedAttemptCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("failedAttemptCount");
+
                     b.Property<string>("Image")
                         .HasColumnType("text")
                         .HasColumnName("image");
+
+                    b.Property<bool>("IsLocked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("isLocked");
+
+                    b.Property<DateTime?>("LockoutEnd")
+                        .HasColumnType("timestamp(3) without time zone")
+                        .HasColumnName("lockoutEnd");
 
                     b.Property<string>("Name")
                         .HasColumnType("text")
@@ -575,6 +714,17 @@ namespace Apotech.Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Apotech.Backend.Models.AuditLog", b =>
+                {
+                    b.HasOne("Apotech.Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("audit_logs_userId_fkey");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Apotech.Backend.Models.ProblemFinding", b =>
                 {
                     b.HasOne("Apotech.Backend.Models.ProblemVerification", "Verification")
@@ -640,6 +790,17 @@ namespace Apotech.Backend.Migrations
                         .HasConstraintName("sessions_userId_fkey");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Apotech.Backend.Models.SystemTimeConfig", b =>
+                {
+                    b.HasOne("Apotech.Backend.Models.User", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("system_time_configs_updatedById_fkey");
+
+                    b.Navigation("UpdatedBy");
                 });
 
             modelBuilder.Entity("Apotech.Backend.Models.UserRole", b =>

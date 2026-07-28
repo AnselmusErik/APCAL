@@ -232,6 +232,17 @@ export function HistoryTab({ onSelectForEvaluation }: HistoryTabProps) {
     setLevelFilter('all')
   }
 
+  // Summary Metrics Computation
+  const summaryStats = useMemo(() => {
+    const total = entries.length
+    const acceptCount = entries.filter(e => e.decision === 'accept').length
+    const rejectCount = entries.filter(e => e.decision === 'reject').length
+    const pendingCount = total - acceptCount - rejectCount
+    const evaluatedTotal = acceptCount + rejectCount
+    const acceptRate = evaluatedTotal > 0 ? Math.round((acceptCount / evaluatedTotal) * 100) : 0
+    return { total, acceptCount, rejectCount, pendingCount, acceptRate }
+  }, [entries])
+
   return (
     <div className="space-y-5">
       {/* ── Header ── */}
@@ -261,6 +272,52 @@ export function HistoryTab({ onSelectForEvaluation }: HistoryTabProps) {
           )}
         </div>
       </div>
+
+      {/* ── Executive Summary Metrics Bar ── */}
+      {!loading && entries.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="p-3.5 rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-xs space-y-1">
+            <p className="text-[10px] font-bold text-[color:var(--color-fg-muted)] uppercase tracking-wider">
+              Total Sampling Record
+            </p>
+            <p className="text-2xl font-black text-[color:var(--color-fg)] tabular-nums">
+              {summaryStats.total}
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/50 shadow-xs space-y-1">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                🟢 Total ACCEPT
+              </p>
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                {summaryStats.acceptRate}% Pass Rate
+              </span>
+            </div>
+            <p className="text-2xl font-black text-emerald-900 tabular-nums">
+              {summaryStats.acceptCount}
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl border border-red-200 bg-red-50/50 shadow-xs space-y-1">
+            <p className="text-[10px] font-bold text-red-800 uppercase tracking-wider">
+              🔴 Total REJECT
+            </p>
+            <p className="text-2xl font-black text-red-900 tabular-nums">
+              {summaryStats.rejectCount}
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 shadow-xs space-y-1">
+            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+              ⚪ Belum Dievaluasi
+            </p>
+            <p className="text-2xl font-black text-slate-700 tabular-nums">
+              {summaryStats.pendingCount}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── Filter Bar ── */}
       {!loading && entries.length > 0 && (

@@ -100,46 +100,51 @@ export function GuideTab() {
         <header className="flex items-center gap-2 mb-4">
           <ListChecks className="h-5 w-5 text-[color:var(--color-primary)]" aria-hidden />
           <h2 className="text-xl font-bold text-[color:var(--color-fg)]">
-            Alur Keputusan Sampling
+            Alur Keputusan Sampling (5 Langkah Standard QA)
           </h2>
         </header>
 
-        <Card variant="elevated">
-          <ol className="space-y-3 list-decimal list-inside text-sm text-[color:var(--color-fg)]">
-            <li>Tentukan ukuran lot → cari kode huruf dari Tabel 1.</li>
-            <li>Dari kode huruf & jenis inspeksi → tentukan jumlah sampel (n) dan batas Ac/Re.</li>
-            <li>Ambil sampel sebanyak n unit secara acak.</li>
-            <li>Hitung jumlah cacat per kategori (Kritis, Mayor, Minor).</li>
-            <li>
-              Bandingkan dengan batas Ac/Re:
-              <ul className="ml-6 mt-2 space-y-1 list-disc list-outside text-[color:var(--color-fg-muted)]">
-                <li>Cacat Kritis ≥ 1 → <Badge variant="solidDanger" size="sm">TOLAK</Badge></li>
-                <li>Cacat Mayor ≥ Re → <Badge variant="solidDanger" size="sm">TOLAK</Badge></li>
-                <li>Cacat Minor ≥ Re → <Badge variant="solidDanger" size="sm">TOLAK</Badge></li>
-                <li>Selain itu → <Badge variant="solidSuccess" size="sm">TERIMA</Badge></li>
-              </ul>
-            </li>
-          </ol>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+          {[
+            { step: '1', title: 'Ukuran Lot', desc: 'Input jumlah unit lot → dapatkan Kode Huruf (Tabel 1).' },
+            { step: '2', title: 'Sampel & Limit', desc: 'Tentukan sampel (n) & batas Ac/Re dari Tabel 2/3/4.' },
+            { step: '3', title: 'Sampling ATB', desc: 'Ambil n sampel secara acak terbagi merata di 3 titik (ATB).' },
+            { step: '4', title: 'Hitung Cacat', desc: 'Pemeriksaan fisik & klasifikasi cacat (Kritis, Mayor, Minor).' },
+            { step: '5', title: 'Vonis Mutu', desc: 'Bandingkan temuan vs Ac/Re → simpan record & cetak PDF.' },
+          ].map(({ step, title, desc }) => (
+            <Card key={step} variant="flat" className="bg-[color:var(--color-surface)] border border-[color:var(--color-border)] p-4 flex flex-col justify-between space-y-2 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="w-6 h-6 rounded-full bg-[color:var(--color-primary)] text-white text-xs font-bold flex items-center justify-center">
+                  {step}
+                </span>
+                <span className="text-[10px] font-bold text-[color:var(--color-fg-subtle)] uppercase">STEP {step}</span>
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-[color:var(--color-fg)] mb-1">{title}</h4>
+                <p className="text-[11px] text-[color:var(--color-fg-muted)] leading-tight">{desc}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
       </section>
 
       <section>
         <header className="flex items-center gap-2 mb-4">
           <ArrowRightLeft className="h-5 w-5 text-[color:var(--color-primary)]" aria-hidden />
           <h2 className="text-xl font-bold text-[color:var(--color-fg)]">
-            Aturan Peralihan Inspeksi
+            Aturan Peralihan Inspeksi (Switching Rules)
           </h2>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {(Object.keys(switchMeta) as SwitchKey[]).map(key => (
-            <Card key={key} variant="default">
+            <Card key={key} variant="elevated" className="border-l-4 border-l-[color:var(--color-primary)]">
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="primary" size="sm">{switchMeta[key].from}</Badge>
-                <ArrowRightLeft className="h-4 w-4 text-[color:var(--color-fg-muted)]" aria-hidden />
+                <ArrowRightLeft className="h-4 w-4 text-[color:var(--color-primary)]" aria-hidden />
                 <Badge variant="accent" size="sm">{switchMeta[key].to}</Badge>
               </div>
-              <p className="text-sm text-[color:var(--color-fg-muted)]">
+              <p className="text-xs font-medium text-[color:var(--color-fg)] leading-relaxed">
                 {data.switchingRules[key].condition}
               </p>
             </Card>

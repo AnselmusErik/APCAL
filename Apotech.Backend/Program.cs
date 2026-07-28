@@ -70,13 +70,18 @@ builder.Services.AddHostedService<NtpMonitoringHostedService>();
 
 var app = builder.Build();
 
-// Seed default user admin@dankos.com if missing
+// Seed / update default user adminQA@dankos.com
 using (var scope = app.Services.CreateScope())
 {
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        if (!db.Users.Any(u => u.Email == "admin@dankos.com"))
+
+        // Automatically apply EF Core migrations on application startup
+        db.Database.Migrate();
+
+        var adminUser = db.Users.FirstOrDefault(u => u.Email == "adminQA@dankos.com" || u.Email == "admin@dankos.com");
+        if (adminUser == null)
         {
             var adminRole = db.Roles.FirstOrDefault(r => r.Name == "ADMIN");
             if (adminRole == null)
@@ -92,12 +97,12 @@ using (var scope = app.Services.CreateScope())
                 db.Roles.Add(adminRole);
             }
 
-            var adminUser = new User
+            adminUser = new User
             {
                 Id = Guid.NewGuid().ToString("N"),
-                Email = "admin@dankos.com",
-                Name = "System Administrator",
-                Password = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                Email = "adminQA@dankos.com",
+                Name = "QA Administrator",
+                Password = BCrypt.Net.BCrypt.HashPassword("Dankos2026"),
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -112,7 +117,15 @@ using (var scope = app.Services.CreateScope())
             });
 
             db.SaveChanges();
-            Console.WriteLine("[SEED] Default admin user admin@dankos.com successfully seeded.");
+            Console.WriteLine("[SEED] Default admin user adminQA@dankos.com successfully seeded.");
+        }
+        else
+        {
+            adminUser.Email = "adminQA@dankos.com";
+            adminUser.Password = BCrypt.Net.BCrypt.HashPassword("Dankos2026");
+            adminUser.UpdatedAt = DateTime.Now;
+            db.SaveChanges();
+            Console.WriteLine("[SEED] Default admin user updated to adminQA@dankos.com with new password.");
         }
     }
     catch (Exception ex)

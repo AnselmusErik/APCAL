@@ -119,41 +119,126 @@ export function DefectsTab({ samplingResult }: DefectsTabProps) {
             <div className="space-y-6">
               <ActiveSamplingSummary samplingResult={samplingResult} />
 
-              <Card variant="flat" className="bg-[color:var(--color-bg-subtle)]">
-                <p className="text-sm font-semibold text-[color:var(--color-fg)] mb-4">
-                  Masukkan cacat ditemukan dari {samplingResult.samplingPlan.sampleSize} sampel:
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-                  <FormField label="🔴 Cacat Kritis">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={defects.critical}
-                      onChange={e => handleDefectChange('critical', e.target.value)}
-                    />
-                  </FormField>
-                  <FormField label="🟠 Cacat Mayor">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={defects.major}
-                      onChange={e => handleDefectChange('major', e.target.value)}
-                    />
-                  </FormField>
-                  <FormField label="🟢 Cacat Minor">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={defects.minor}
-                      onChange={e => handleDefectChange('minor', e.target.value)}
-                    />
-                  </FormField>
+              <Card variant="flat" className="bg-[color:var(--color-bg-subtle)] border border-[color:var(--color-border)] p-5">
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                  <p className="text-sm font-bold text-[color:var(--color-fg)]">
+                    Masukkan Jumlah Cacat Ditemukan dari <span className="text-[color:var(--color-primary)] font-black text-base">{samplingResult.samplingPlan.sampleSize}</span> sampel:
+                  </p>
+                  <span className="text-xs text-[color:var(--color-fg-muted)]">Gunakan tombol + / - atau ketik langsung</span>
                 </div>
 
-                <Button onClick={handleEvaluate} loading={loading}>
-                  {loading ? 'Mengevaluasi...' : 'Evaluasi & Putuskan'}
-                </Button>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  {/* Kritis Card */}
+                  <div className="p-4 rounded-xl border border-red-200 bg-red-50/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-red-900 flex items-center gap-1.5">
+                        🔴 Cacat Kritis
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">
+                        AQL 0%
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleDefectChange('critical', String(Math.max(0, defects.critical - 1)))}
+                        className="w-10 h-10 rounded-lg bg-white border border-red-200 text-red-700 font-bold text-lg hover:bg-red-100 active:scale-95 transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={defects.critical}
+                        onChange={e => handleDefectChange('critical', e.target.value)}
+                        className="text-center font-black text-lg h-10 bg-white border-red-200 text-red-900"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDefectChange('critical', String(defects.critical + 1))}
+                        className="w-10 h-10 rounded-lg bg-white border border-red-200 text-red-700 font-bold text-lg hover:bg-red-100 active:scale-95 transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Mayor Card */}
+                  <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                        🟠 Cacat Mayor
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                        AQL 2.5%
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleDefectChange('major', String(Math.max(0, defects.major - 1)))}
+                        className="w-10 h-10 rounded-lg bg-white border border-amber-200 text-amber-800 font-bold text-lg hover:bg-amber-100 active:scale-95 transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={defects.major}
+                        onChange={e => handleDefectChange('major', e.target.value)}
+                        className="text-center font-black text-lg h-10 bg-white border-amber-200 text-amber-950"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDefectChange('major', String(defects.major + 1))}
+                        className="w-10 h-10 rounded-lg bg-white border border-amber-200 text-amber-800 font-bold text-lg hover:bg-amber-100 active:scale-95 transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Minor Card */}
+                  <div className="p-4 rounded-xl border border-teal-200 bg-teal-50/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-teal-900 flex items-center gap-1.5">
+                        🟢 Cacat Minor
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
+                        AQL 4.0%
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleDefectChange('minor', String(Math.max(0, defects.minor - 1)))}
+                        className="w-10 h-10 rounded-lg bg-white border border-teal-200 text-teal-800 font-bold text-lg hover:bg-teal-100 active:scale-95 transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={defects.minor}
+                        onChange={e => handleDefectChange('minor', e.target.value)}
+                        className="text-center font-black text-lg h-10 bg-white border-teal-200 text-teal-950"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDefectChange('minor', String(defects.minor + 1))}
+                        className="w-10 h-10 rounded-lg bg-white border border-teal-200 text-teal-800 font-bold text-lg hover:bg-teal-100 active:scale-95 transition-all shadow-xs flex items-center justify-center shrink-0 cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button onClick={handleEvaluate} loading={loading} size="lg">
+                    {loading ? 'Mengevaluasi...' : 'Evaluasi & Putuskan QA'}
+                  </Button>
+                </div>
               </Card>
 
               {evaluationResult && <DecisionResult result={evaluationResult} />}

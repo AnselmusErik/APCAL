@@ -500,30 +500,55 @@ function AtbSection({ n }: { n: number }) {
   const p3 = n - p1 - p2
 
   return (
-    <div className="rounded-[var(--radius-md)] border border-[color:var(--color-primary)] bg-[color:var(--color-primary-tint)] px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-wider text-[color:var(--color-primary)] mb-3">
-        Titik ATB — Pembagian Pengambilan Sampel ({n} ÷ 3)
-      </p>
+    <div className="rounded-[var(--radius-md)] border border-[color:var(--color-primary)]/40 bg-[color:var(--color-primary-tint)] px-4 py-3.5 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-bold uppercase tracking-wider text-[color:var(--color-primary)] flex items-center gap-1.5">
+          <span>📍</span> Titik ATB — Pembagian Pengambilan Sampel ({n} ÷ 3)
+        </p>
+        <span className="text-[11px] font-semibold text-[color:var(--color-primary)] bg-white/80 px-2 py-0.5 rounded-full border border-[color:var(--color-primary)]/20 shadow-2xs">
+          Proorsional Awal-Tengah-Akhir
+        </span>
+      </div>
+
+      {/* Visual Production Timeline Bar */}
+      <div className="space-y-1">
+        <div className="h-2 w-full bg-white/70 rounded-full overflow-hidden flex p-0.5 gap-0.5 border border-[color:var(--color-primary)]/20">
+          <div className="h-full bg-[color:var(--color-primary)] rounded-l-full flex-1" title="Awal (0-33%)" />
+          <div className="h-full bg-sky-500 flex-1" title="Tengah (34-66%)" />
+          <div className="h-full bg-teal-500 rounded-r-full flex-1" title="Akhir (67-100%)" />
+        </div>
+        <div className="flex justify-between text-[9px] font-semibold text-[color:var(--color-fg-muted)] px-1">
+          <span>0% (Mulai Lot)</span>
+          <span>33%</span>
+          <span>66%</span>
+          <span>100% (Selesai Lot)</span>
+        </div>
+      </div>
+
       <div className="grid grid-cols-3 gap-3 text-center">
-        {([
-          { label: 'Titik 1', val: p1 },
-          { label: 'Titik 2', val: p2 },
-          { label: 'Titik 3', val: p3 },
-        ] as const).map(({ label, val }) => (
-          <div key={label} className="bg-white/60 rounded-[var(--radius-sm)] py-2.5 px-2">
-            <p className="text-[10px] font-semibold text-[color:var(--color-fg-muted)] uppercase tracking-wider">
-              {label}
-            </p>
-            <p className="text-2xl font-bold text-[color:var(--color-primary)] tabular-nums leading-tight">
-              {val}
-            </p>
-            <p className="text-[10px] text-[color:var(--color-fg-subtle)]">unit</p>
+        {[
+          { label: 'Titik 1 (Awal)', val: p1, range: '0% – 33%', color: 'border-l-[color:var(--color-primary)]' },
+          { label: 'Titik 2 (Tengah)', val: p2, range: '34% – 66%', color: 'border-l-sky-500' },
+          { label: 'Titik 3 (Akhir)', val: p3, range: '67% – 100%', color: 'border-l-teal-500' },
+        ].map(({ label, val, range, color }) => (
+          <div key={label} className={`bg-white/80 backdrop-blur-xs rounded-[var(--radius-sm)] p-2.5 shadow-2xs border-l-3 ${color} text-left flex flex-col justify-between`}>
+            <div>
+              <p className="text-[10px] font-bold text-[color:var(--color-fg-muted)] uppercase tracking-wider">
+                {label}
+              </p>
+              <p className="text-[9px] text-[color:var(--color-fg-subtle)] font-medium">
+                {range} proses
+              </p>
+            </div>
+            <div className="mt-1">
+              <span className="text-xl font-black text-[color:var(--color-fg)] tabular-nums leading-tight">
+                {val}
+              </span>
+              <span className="text-[10px] text-[color:var(--color-fg-muted)] ml-1">unit</span>
+            </div>
           </div>
         ))}
       </div>
-      <p className="text-[10px] text-[color:var(--color-fg-muted)] mt-2 text-center">
-        Pengambilan sampel dibagi merata di 3 titik lokasi berbeda
-      </p>
     </div>
   )
 }

@@ -11,7 +11,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ username: "admin@dankos.com", password: "admin123" });
+  const [form, setForm] = useState({ username: "adminQA@dankos.com", password: "Dankos2026" });
 
   const { login } = useAuth();
 
@@ -38,58 +38,39 @@ export default function LoginPage() {
   }
 
   const fillDemoAccount = () => {
-    setForm({ username: "admin@dankos.com", password: "admin123" });
+    setForm({ username: "adminQA@dankos.com", password: "Dankos2026" });
     toast.success("Kredensial demo terisi!");
   };
 
   return (
-    <main className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-[color:var(--color-bg-base)] via-[color:var(--color-bg-subtle)] to-[color:var(--color-primary-tint)]">
-      <div className="w-full max-w-md bg-[color:var(--color-surface)] border border-[color:var(--color-border)] shadow-2xl rounded-2xl p-8 space-y-6 relative overflow-hidden backdrop-blur-md">
-        {/* Decorative background glow */}
-        <div className="absolute -top-12 -right-12 w-40 h-40 bg-[color:var(--color-primary)]/10 rounded-full blur-2xl pointer-events-none" />
+    <main className="min-h-screen w-full flex items-center justify-center p-4 bg-pharma-grid bg-[color:var(--color-bg-subtle)] relative overflow-hidden">
+      {/* Ambient background glows */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[color:var(--color-primary)]/8 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Brand & Header */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-[color:var(--color-bg-subtle)] border border-[color:var(--color-border)] shadow-xs">
-            <Image
-              src="/brand/logo-dankos.webp"
-              alt="Logo Dankos Farma"
-              width={140}
-              height={45}
-              className="h-10 w-auto object-contain"
-              priority
-            />
-          </div>
+      <div className="w-full max-w-md bg-[color:var(--color-surface)] border border-[color:var(--color-border)] shadow-lg rounded-2xl p-8 space-y-6 relative overflow-hidden backdrop-blur-md">
+        {/* Brand & Header — Clean logo without bubble box */}
+        <div className="text-center space-y-4">
+          <Image
+            src="/brand/logo-dankos.webp"
+            alt="Logo Dankos Farma"
+            width={160}
+            height={50}
+            className="h-12 w-auto object-contain mx-auto"
+            priority
+          />
 
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-[color:var(--color-fg)]">
               APCAL Sign In
             </h1>
             <p className="text-xs text-[color:var(--color-fg-muted)] mt-1">
-              ANSI/ASQ Z1.4 Pharma Quality Assurance Calculator
+              ANSI/ASQ Z1.4 Quality Assurance System
             </p>
           </div>
         </div>
 
-        {/* Demo Hint Banner */}
-        <div className="p-3 rounded-xl border border-[color:var(--color-primary)]/30 bg-[color:var(--color-primary-tint)] flex items-center justify-between text-xs">
-          <div className="space-y-0.5 text-[color:var(--color-fg-muted)]">
-            <span className="font-semibold text-[color:var(--color-primary)] block">Kredensial Default:</span>
-            <span>User: <code className="font-mono text-[color:var(--color-fg)]">admin@dankos.com</code></span>
-            <span className="mx-1">·</span>
-            <span>Pass: <code className="font-mono text-[color:var(--color-fg)]">admin123</code></span>
-          </div>
-          <button
-            type="button"
-            onClick={fillDemoAccount}
-            className="text-[10px] px-2.5 py-1 rounded-md bg-[color:var(--color-primary)] text-white font-medium hover:opacity-90 transition-opacity shrink-0 ml-2"
-          >
-            Auto Fill
-          </button>
-        </div>
-
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-[color:var(--color-fg)] flex items-center gap-1.5">
               <Mail className="h-3.5 w-3.5 text-[color:var(--color-primary)]" />
@@ -100,8 +81,8 @@ export default function LoginPage() {
               required
               value={form.username}
               onChange={(e) => setForm({ ...form, username: e.target.value })}
-              className="w-full rounded-xl bg-[color:var(--color-bg-subtle)] border border-[color:var(--color-border)] px-4 py-2.5 text-sm text-[color:var(--color-fg)] focus:outline-none focus:border-[color:var(--color-primary)] focus:ring-2 focus:ring-[color:var(--color-primary)]/20 transition-all"
-              placeholder="admin@dankos.com atau admin"
+              className="w-full rounded-xl bg-[color:var(--color-bg-subtle)] border border-[color:var(--color-border)] px-4 py-2.5 text-sm text-[color:var(--color-fg)] focus:outline-none focus:border-[color:var(--color-primary)] focus:ring-2 focus:ring-[color:var(--color-primary)]/20 transition-all font-medium"
+              placeholder="adminQA@dankos.com"
             />
           </div>
 
@@ -116,13 +97,13 @@ export default function LoginPage() {
                 required
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full rounded-xl bg-[color:var(--color-bg-subtle)] border border-[color:var(--color-border)] pl-4 pr-10 py-2.5 text-sm text-[color:var(--color-fg)] focus:outline-none focus:border-[color:var(--color-primary)] focus:ring-2 focus:ring-[color:var(--color-primary)]/20 transition-all"
+                className="w-full rounded-xl bg-[color:var(--color-bg-subtle)] border border-[color:var(--color-border)] pl-4 pr-10 py-2.5 text-sm text-[color:var(--color-fg)] focus:outline-none focus:border-[color:var(--color-primary)] focus:ring-2 focus:ring-[color:var(--color-primary)]/20 transition-all font-medium"
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--color-fg-subtle)] hover:text-[color:var(--color-fg)]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--color-fg-subtle)] hover:text-[color:var(--color-fg)] transition-colors p-1"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -132,7 +113,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 rounded-xl bg-[color:var(--color-primary)] py-3 px-4 text-sm font-semibold text-white hover:bg-[color:var(--color-primary)]/90 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-4 rounded-xl bg-[color:var(--color-primary)] py-3 px-4 text-sm font-semibold text-white hover:bg-[color:var(--color-primary-hover)] active:bg-[color:var(--color-primary-active)] transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <span>Memverifikasi...</span>

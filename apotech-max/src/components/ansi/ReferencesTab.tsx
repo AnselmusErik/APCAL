@@ -31,6 +31,7 @@ export function ReferencesTab() {
   const [data, setData] = useState<ReferenceData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [lotSearch, setLotSearch] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -73,10 +74,32 @@ export function ReferencesTab() {
     )
   }
 
+  const searchedLotNum = parseInt(lotSearch, 10)
+
   return (
     <div className="space-y-8">
+      {/* ── Sub-nav Bar for Quick Jump ── */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold text-[color:var(--color-fg-muted)] border-b border-[color:var(--color-border)]">
+        <span className="text-[color:var(--color-fg)] shrink-0">Lompat ke:</span>
+        <a href="#table-explanation" className="px-3 py-1.5 rounded-lg bg-[color:var(--color-bg-subtle)] hover:bg-[color:var(--color-border)] transition-colors shrink-0">
+          Penjelasan Level
+        </a>
+        <a href="#table-1" className="px-3 py-1.5 rounded-lg bg-[color:var(--color-bg-subtle)] hover:bg-[color:var(--color-border)] transition-colors shrink-0">
+          Tabel 1 (Kode Huruf)
+        </a>
+        <a href="#table-2" className="px-3 py-1.5 rounded-lg bg-[color:var(--color-bg-subtle)] hover:bg-[color:var(--color-border)] transition-colors shrink-0">
+          Tabel 2 (Normal)
+        </a>
+        <a href="#table-3" className="px-3 py-1.5 rounded-lg bg-[color:var(--color-bg-subtle)] hover:bg-[color:var(--color-border)] transition-colors shrink-0">
+          Tabel 3 (Tightened)
+        </a>
+        <a href="#table-4" className="px-3 py-1.5 rounded-lg bg-[color:var(--color-bg-subtle)] hover:bg-[color:var(--color-border)] transition-colors shrink-0">
+          Tabel 4 (Reduced)
+        </a>
+      </div>
+
       {/* ── Inspection Levels Explanation Card ── */}
-      <Card variant="elevated" className="space-y-4">
+      <Card id="table-explanation" variant="elevated" className="space-y-4">
         <CardHeader className="p-0 border-none">
           <CardTitle className="flex items-center gap-2 text-lg">
             <BookOpenText className="h-5 w-5 text-[color:var(--color-primary)]" aria-hidden />
@@ -138,12 +161,24 @@ export function ReferencesTab() {
       </Card>
 
       {/* ── Table I Reference Mapping ── */}
-      <Card variant="elevated" padding="none">
-        <CardHeader>
+      <Card id="table-1" variant="elevated" padding="none">
+        <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-3">
           <CardTitle className="flex items-center gap-2">
             <BookOpenText className="h-5 w-5 text-[color:var(--color-primary)]" aria-hidden />
             Reference Mapping (ANSI/ASQ Z1.4 Table I — Kode Huruf Sampel)
           </CardTitle>
+
+          {/* Quick Lot Searcher */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-[color:var(--color-fg-muted)] whitespace-nowrap">🔍 Cari Lot Size:</span>
+            <input
+              type="number"
+              placeholder="Contoh: 5000"
+              value={lotSearch}
+              onChange={(e) => setLotSearch(e.target.value)}
+              className="h-8 w-32 rounded-lg bg-[color:var(--color-bg-subtle)] border border-[color:var(--color-border)] px-2.5 text-xs text-[color:var(--color-fg)] font-medium focus:outline-none focus:border-[color:var(--color-primary)]"
+            />
+          </div>
         </CardHeader>
         <CardBody>
           <TableScroll>
@@ -161,42 +196,65 @@ export function ReferencesTab() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.lotCodeMappings.map((mapping, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="font-medium whitespace-nowrap">
-                      {mapping.maxSize >= 99999999
-                        ? `≥ ${mapping.minSize.toLocaleString('id-ID')}`
-                        : `${mapping.minSize.toLocaleString('id-ID')} – ${mapping.maxSize.toLocaleString('id-ID')}`}
-                    </TableCell>
-                    <TableCell align="center">{mapping.s1 ?? 'A'}</TableCell>
-                    <TableCell align="center">{mapping.s2 ?? 'A'}</TableCell>
-                    <TableCell align="center">{mapping.s3 ?? 'A'}</TableCell>
-                    <TableCell align="center">{mapping.s4 ?? 'A'}</TableCell>
-                    <TableCell align="center">{mapping.gi ?? 'A'}</TableCell>
-                    <TableCell align="center">{mapping.gii ?? mapping.code}</TableCell>
-                    <TableCell align="center">{mapping.giii ?? 'B'}</TableCell>
-                  </TableRow>
-                ))}
+                {data.lotCodeMappings.map((mapping, idx) => {
+                  const isMatch =
+                    !isNaN(searchedLotNum) &&
+                    searchedLotNum >= mapping.minSize &&
+                    searchedLotNum <= mapping.maxSize
+
+                  return (
+                    <TableRow
+                      key={idx}
+                      className={
+                        isMatch
+                          ? 'bg-amber-100/90 text-amber-950 font-bold border-l-4 border-l-amber-500 shadow-xs'
+                          : undefined
+                      }
+                    >
+                      <TableCell className="font-medium whitespace-nowrap">
+                        {mapping.maxSize >= 99999999
+                          ? `≥ ${mapping.minSize.toLocaleString('id-ID')}`
+                          : `${mapping.minSize.toLocaleString('id-ID')} – ${mapping.maxSize.toLocaleString('id-ID')}`}
+                        {isMatch && <span className="ml-2 text-[10px] text-amber-800 bg-amber-200 px-1.5 py-0.5 rounded font-black">MATCH</span>}
+                      </TableCell>
+                      <TableCell align="center">{mapping.s1 ?? 'A'}</TableCell>
+                      <TableCell align="center">{mapping.s2 ?? 'A'}</TableCell>
+                      <TableCell align="center">{mapping.s3 ?? 'A'}</TableCell>
+                      <TableCell align="center">{mapping.s4 ?? 'A'}</TableCell>
+                      <TableCell align="center">{mapping.gi ?? 'A'}</TableCell>
+                      <TableCell align="center" className={isMatch ? 'text-amber-900 font-black text-base' : 'font-bold text-[color:var(--color-primary)]'}>
+                        {mapping.gii ?? mapping.code}
+                      </TableCell>
+                      <TableCell align="center">{mapping.giii ?? 'B'}</TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           </TableScroll>
         </CardBody>
       </Card>
 
-      <SamplingPlanTable
-        title="Tabel 2 — Normal Inspection (Z1.4 II-A)"
-        plans={data.samplingPlans}
-      />
-      <SamplingPlanTable
-        title="Tabel 3 — Tightened Inspection (Z1.4 II-B)"
-        plans={data.tightenedPlans ?? []}
-        accent="warning"
-      />
-      <SamplingPlanTable
-        title="Tabel 4 — Reduced Inspection (Z1.4 II-C)"
-        plans={data.reducedPlans ?? []}
-        accent="success"
-      />
+      <div id="table-2">
+        <SamplingPlanTable
+          title="Tabel 2 — Normal Inspection (Z1.4 II-A)"
+          plans={data.samplingPlans}
+        />
+      </div>
+      <div id="table-3">
+        <SamplingPlanTable
+          title="Tabel 3 — Tightened Inspection (Z1.4 II-B)"
+          plans={data.tightenedPlans ?? []}
+          accent="warning"
+        />
+      </div>
+      <div id="table-4">
+        <SamplingPlanTable
+          title="Tabel 4 — Reduced Inspection (Z1.4 II-C)"
+          plans={data.reducedPlans ?? []}
+          accent="success"
+        />
+      </div>
 
       <Alert variant="info" title="Catatan singkat tiga level inspeksi">
         <ul className="ml-4 list-disc space-y-1 mt-1">
