@@ -39,8 +39,8 @@ Sebelum menjalankan aplikasi, pastikan komputer Anda telah terinstall:
 Buka **Terminal** (macOS/Linux) atau **Command Prompt / PowerShell** (Windows), lalu jalankan:
 
 ```bash
-git clone https://github.com/vrgsptn/apotek.git
-cd apotek
+git clone https://github.com/AnselmusErik/APCAL.git
+cd APCAL
 ```
 
 ---
